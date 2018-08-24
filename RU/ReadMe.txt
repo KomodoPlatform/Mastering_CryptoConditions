@@ -14,7 +14,7 @@
 Глава 1 - OP_CHECKCRYPTOCONDITION
 Глава 2 - основы CC контрактов
 Глава 3 - CC vouts
-Глава 4 - rpc разширения CC
+Глава 4 - rpc раcширения CC
 Глава 5 - валидация CC
 Глава 6 - пример: faucet
 Глава 7 - пример: rewards
