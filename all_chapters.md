@@ -98,7 +98,7 @@ However, this is the CC contract basics chapter, so let us ignore mempool issues
 
 That means to just follow a known working template and only changing the things where the existing templates are not sufficient, ie. the core differentiator of your CC contract.
 
-In the `~/komodo/src/cc/eval.h` file all the eval codes are defined, currently:
+In the [~/komodo/src/cc/eval.h](https://github.com/jl777/komodo/tree/jl777/src/cc/eval.h) file all the eval codes are defined, currently:
 
 ```C
 #define FOREACH_EVAL(EVAL)             \
@@ -187,7 +187,7 @@ char FaucetCChexstr[67] = { "03682b255c40d0cde8faee381a1a50bbb89980ff24539cb8518
 uint8_t FaucetCCpriv[32] = { 0xd4, 0x4f, 0xf2, 0x31, 0x71, 0x7d, 0x28, 0x02, 0x4b, 0xc7, 0xdd, 0x71, 0xa0, 0x39, 0xc4, 0xbe, 0x1a, 0xfe, 0xeb, 0xc2, 0x46, 0xda, 0x76, 0xf8, 0x07, 0x53, 0x3d, 0x96, 0xb4, 0xca, 0xa0, 0xe9 };
 ```
 
-Above are the specifics for the faucet CC, but each one has the equivalent in CCcustom.cpp. At the bottom of the file is a big switch statement where these values are copied into an in memory data structure for each CC type. This allows all the CC codebase to access these special addresses in a standard way.
+Above are the specifics for the faucet CC, but each one has the equivalent in [CCcustom.cpp](https://github.com/jl777/komodo/tree/jl777/src/cc/CCcustom.cpp). At the bottom of the file is a big switch statement where these values are copied into an in memory data structure for each CC type. This allows all the CC codebase to access these special addresses in a standard way.
 
 In order to get the above values, follow these steps:
 
@@ -195,13 +195,13 @@ A. use getnewaddress to get a new address and put that in the `<CC>Normaladdr = 
 
 B. use validateaddress `<newaddress from A>` to get the pubkey, which is put into the `<CC>hexstr[67] = "";` line
 
-C. stop the daemon and start with `-pubkey=<pubkey from B>` and do a `<CC>`address rpc call. In the console you will get a printout of the hex for the privkey, assuming the if ( 0 ) in `Myprivkey()` is enabled (`CCutils.cpp`)
+C. stop the daemon and start with `-pubkey=<pubkey from B>` and do a `<CC>`address rpc call. In the console you will get a printout of the hex for the privkey, assuming the if ( 0 ) in `Myprivkey()` is enabled ([CCutils.cpp](https://github.com/jl777/komodo/tree/jl777/src/cc/CCutils.cpp))
 
 D. update the `CCaddress` and `privkey` and dont forget to change the `-pubkey=` parameter
 
-The first rpc command to add is `<CC>`address and to do that, add a line to `rpcserver.h` and update the commands array in `rpcserver.cpp`
+The first rpc command to add is `<CC>`address and to do that, add a line to [rpcserver.h](https://github.com/jl777/komodo/tree/jl777/src/rpcserver.h) and update the commands array in [rpcserver.cpp](https://github.com/jl777/komodo/tree/jl777/src/rpcserver.cpp)
 
-In the `rpcwallet.cpp` file you will find the actual rpc functions, find one of the `<CC>`address ones, copy paste, change the eval code to your eval code and customize the function. Oh, and dont forget to add an entry into `eval.h`
+In the [rpcwallet.cpp](https://github.com/jl777/komodo/tree/jl777/src/wallet/rpcwallet.cpp) file you will find the actual rpc functions, find one of the `<CC>`address ones, copy paste, change the eval code to your eval code and customize the function. Oh, and dont forget to add an entry into [eval.h](https://github.com/jl777/komodo/tree/jl777/src/cc/eval.h)
 
 Now you have made your own CC contract, but it wont link as you still need to implement the actual functions of it. This will be covered in the following chapters.
 
