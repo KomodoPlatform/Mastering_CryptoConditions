@@ -10,7 +10,7 @@ utxo based contracts are a bit harder to start writing than for balance based co
 
 This document will be heavily example based so it will utilize many of the existing reference CC contracts. After understanding this document, you should be in a good position to start creating either a new CC contract to be integrated into komodod or to make rpc based dapps directly.
 
-- Chapter 0 - Bitcoin Protocol Basics
+- [Chapter 0 - Bitcoin Protocol Basics](#chapter-0---bitcoin-protocol-basics)
 - Chapter 1 - OP_CHECKCRYPTOCONDITION
 - Chapter 2 - CC contract basics
 - Chapter 3 - CC vouts
