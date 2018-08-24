@@ -173,7 +173,7 @@ Currently, CC contracts need to be integrated at the source level. This limits w
 
 By convention, each CC contract adds an associated set of rpc calls to the komodo-cli. This not only simplifies the creation of the CC contract transactions, it further will allow dapps to be created just via rpc calls. That will require there being enough foundational CC contracts already in place. As we find new usecases that cannot be implemented via rpc, then a new CC contract is made that can handle that (and more) and the power of the rpc level increases. This is a long term process.
 
-The typical rpc calls that are added <CC>address, <CClist>, <CCinfo> return the various special CC addresses, the list of CC contract instances and info about each CC contract instance. Along with an rpc that creates a CC instance and of course the calls to invoke a CC instance.
+The typical rpc calls that are added `<CC>address`, `<CClist>`, `<CCinfo>` return the various special CC addresses, the list of CC contract instances and info about each CC contract instance. Along with an rpc that creates a CC instance and of course the calls to invoke a CC instance.
 The role of the rpc calls are to create properly signed rawtransactions that are ready for broadcasting. This then allows using only the rpc calls to not only invoke but to create a specific instance of a CC. The faucet contract is special in that it only has a single instance, so some of these rpc calls are skipped.
 
 So, there is no MUSTHAVE rpc calls, just a sane convention to follow so it fits into the general pattern.
