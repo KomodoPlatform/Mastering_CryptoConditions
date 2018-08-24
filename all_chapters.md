@@ -237,6 +237,7 @@ uint8_t FaucetCCpriv[32] = { 0xd4, 0x4f, 0xf2, 0x31, 0x71, 0x7d, 0x28, 0x02, 0x4
 Above are the specifics for the faucet CC, but each one has the equivalent in CCcustom.cpp. At the bottom of the file is a big switch statement where these values are copied into an in memory data structure for each CC type. This allows all the CC codebase to access these special addresses in a standard way.
 
 In order to get the above values, follow these steps:
+
 A. use getnewaddress to get a new address and put that in the `<CC>Normaladdr = "";` line
 
 B. use validateaddress `<newaddress from A>` to get the pubkey, which is put into the `<CC>hexstr[67] = "";` line
