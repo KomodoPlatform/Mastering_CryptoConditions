@@ -238,8 +238,11 @@ Above are the specifics for the faucet CC, but each one has the equivalent in CC
 
 In order to get the above values, follow these steps:
 A. use getnewaddress to get a new address and put that in the `<CC>Normaladdr = "";` line
+
 B. use validateaddress `<newaddress from A>` to get the pubkey, which is put into the `<CC>hexstr[67] = "";` line
+
 C. stop the daemon and start with `-pubkey=<pubkey from B>` and do a `<CC>`address rpc call. In the console you will get a printout of the hex for the privkey, assuming the if ( 0 ) in `Myprivkey()` is enabled (`CCutils.cpp`)
+
 D. update the `CCaddress` and `privkey` and dont forget to change the `-pubkey=` parameter
 
 The first rpc command to add is `<CC>`address and to do that, add a line to `rpcserver.h` and update the commands array in `rpcserver.cpp`
