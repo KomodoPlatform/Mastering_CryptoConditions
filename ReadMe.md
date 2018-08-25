@@ -5,13 +5,13 @@ This repo consists the raw text documentation on Komodo CryptoConditions Smart C
 All the chapters are plain text files.
 
 - [INDEX](Index)
-- [Chapter 0 - Bitcoin Protocol Basics](Chapter%200%20-%20Bitcoin%20Protocol%20Basics)
-- [Chapter 1 - OP_CHECKCRYPTOCONDITION](Chapter%201%20-%20OP_CHECKCRYPTOCONDITION)
-- [Chapter 2 - CC contract basics](Chapter%202%20-%20CC%20contract%20basics)
-- [Chapter 3 - CC vouts](Chapter%203%20-%20CC%20vouts)
-- [Chapter 4 - CC RPC extensions](Chapter%204%20-%20CC%20RPC%20extensions)
-- [Chapter 5 - CC validation](Chapter%205%20-%20CC%20validation)
-- [Chapter 6 - faucet example](Chapter%206%20-%20faucet%20example)
+- [Chapter 0 - Bitcoin Protocol Basics](Chapter%2000%20-%20Bitcoin%20Protocol%20Basics)
+- [Chapter 1 - OP_CHECKCRYPTOCONDITION](Chapter%2001%20-%20OP_CHECKCRYPTOCONDITION)
+- [Chapter 2 - CC contract basics](Chapter%2002%20-%20CC%20contract%20basics)
+- [Chapter 3 - CC vouts](Chapter%2003%20-%20CC%20vouts)
+- [Chapter 4 - CC RPC extensions](Chapter%2004%20-%20CC%20RPC%20extensions)
+- [Chapter 5 - CC validation](Chapter%2005%20-%20CC%20validation)
+- [Chapter 6 - faucet example](Chapter%2006%20-%20faucet%20example)
 - Chapter 7 - rewards example
 - Chapter 8 - assets example
 - Chapter 9 - dice example
