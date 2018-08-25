@@ -1,0 +1,104 @@
+## Lock Rewards
+This will lock your funds for rewards to the specified Rewards Plan.
+
+Usage: `rewardslock name fundingtxid amount`
+### Step 1: Create raw transaction
+Example Command:
+```shell
+./komodo-cli -ac_name=ATEST rewardslock FREE c0c5165902fd21728aed707888db082a72a013def8902c21626c1e5214f00fae 500
+```
+Output:
+```JSON
+{
+  "result": "success",
+  "hex": "010000000155824bc1930bb322270e0ebb9536b469a99142317e022b0c086adb0377aa8d070000000048473044022005be54269bcb8fc0e4fad40019afcd41d1df56d7504cb10d70bbcd26f13e89fd02203cf4378155f082667b0aafb0ae9b6ed54c9498415215424ba57796dcd37e4ea901ffffffff0400743ba40b000000302ea22c802065686d47a4049c2c845a71895a915eb84c04445896eec5dc0be40df0b31372da8103120c008203000401cc1027000000000000232103fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abcace0dd36aa0c090000232103fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abcac00000000000000002c6a2ae54c4652454500000000ae0ff014521e6c62212c90f8de13a0722a08db887870ed8a7221fd025916c5c000000000"
+}
+```
+### Step 2: Broadcast raw transaction
+Example Command:
+```shell
+./komodo-cli -ac_name=ATEST sendrawtransaction 010000000155824bc1930bb322270e0ebb9536b469a99142317e022b0c086adb0377aa8d070000000048473044022005be54269bcb8fc0e4fad40019afcd41d1df56d7504cb10d70bbcd26f13e89fd02203cf4378155f082667b0aafb0ae9b6ed54c9498415215424ba57796dcd37e4ea901ffffffff0400743ba40b000000302ea22c802065686d47a4049c2c845a71895a915eb84c04445896eec5dc0be40df0b31372da8103120c008203000401cc1027000000000000232103fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abcace0dd36aa0c090000232103fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abcac00000000000000002c6a2ae54c4652454500000000ae0ff014521e6c62212c90f8de13a0722a08db887870ed8a7221fd025916c5c000000000
+```
+Output:
+```JSON
+86185406f5836b60a381f254d743983b3719bf61cee5ca0c07dbd0806aee1094
+```
+### Step 3: Decode raw transaction (optional to check if the values are sane)
+Example Command:
+```shell
+./komodo-cli -ac_name=ATEST decoderawtransaction 010000000155824bc1930bb322270e0ebb9536b469a99142317e022b0c086adb0377aa8d070000000048473044022005be54269bcb8fc0e4fad40019afcd41d1df56d7504cb10d70bbcd26f13e89fd02203cf4378155f082667b0aafb0ae9b6ed54c9498415215424ba57796dcd37e4ea901ffffffff0400743ba40b000000302ea22c802065686d47a4049c2c845a71895a915eb84c04445896eec5dc0be40df0b31372da8103120c008203000401cc1027000000000000232103fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abcace0dd36aa0c090000232103fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abcac00000000000000002c6a2ae54c4652454500000000ae0ff014521e6c62212c90f8de13a0722a08db887870ed8a7221fd025916c5c000000000
+```
+Output:
+```JSON
+{
+  "txid": "86185406f5836b60a381f254d743983b3719bf61cee5ca0c07dbd0806aee1094",
+  "size": 321,
+  "version": 1,
+  "locktime": 0,
+  "vin": [
+    {
+      "txid": "078daa7703db6a080c2b027e314291a969b43695bb0e0e2722b30b93c14b8255",
+      "vout": 0,
+      "scriptSig": {
+        "asm": "3044022005be54269bcb8fc0e4fad40019afcd41d1df56d7504cb10d70bbcd26f13e89fd02203cf4378155f082667b0aafb0ae9b6ed54c9498415215424ba57796dcd37e4ea901",
+        "hex": "473044022005be54269bcb8fc0e4fad40019afcd41d1df56d7504cb10d70bbcd26f13e89fd02203cf4378155f082667b0aafb0ae9b6ed54c9498415215424ba57796dcd37e4ea901"
+      },
+      "sequence": 4294967295
+    }
+  ],
+  "vout": [
+    {
+      "value": 500.00000000,
+      "valueSat": 50000000000,
+      "n": 0,
+      "scriptPubKey": {
+        "asm": "a22c802065686d47a4049c2c845a71895a915eb84c04445896eec5dc0be40df0b31372da8103120c008203000401 OP_CHECKCRYPTOCONDITION",
+        "hex": "2ea22c802065686d47a4049c2c845a71895a915eb84c04445896eec5dc0be40df0b31372da8103120c008203000401cc",
+        "reqSigs": 1,
+        "type": "cryptocondition",
+        "addresses": [
+          "RTsRBYL1HSvMoE3qtBJkyiswdVaWkm8YTK"
+        ]
+      }
+    },
+    {
+      "value": 0.00010000,
+      "valueSat": 10000,
+      "n": 1,
+      "scriptPubKey": {
+        "asm": "03fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abc OP_CHECKSIG",
+        "hex": "2103fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abcac",
+        "reqSigs": 1,
+        "type": "pubkey",
+        "addresses": [
+          "RANyPgfZZLhSjQB9jrzztSw66zMMYDZuxQ"
+        ]
+      }
+    },
+    {
+      "value": 99499.99980000,
+      "valueSat": 9949999980000,
+      "n": 2,
+      "scriptPubKey": {
+        "asm": "03fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abc OP_CHECKSIG",
+        "hex": "2103fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abcac",
+        "reqSigs": 1,
+        "type": "pubkey",
+        "addresses": [
+          "RANyPgfZZLhSjQB9jrzztSw66zMMYDZuxQ"
+        ]
+      }
+    },
+    {
+      "value": 0.00000000,
+      "valueSat": 0,
+      "n": 3,
+      "scriptPubKey": {
+        "asm": "OP_RETURN e54c4652454500000000ae0ff014521e6c62212c90f8de13a0722a08db887870ed8a7221fd025916c5c0",
+        "hex": "6a2ae54c4652454500000000ae0ff014521e6c62212c90f8de13a0722a08db887870ed8a7221fd025916c5c0",
+        "type": "nulldata"
+      }
+    }
+  ]
+}
+```
