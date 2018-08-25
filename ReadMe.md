@@ -4,7 +4,7 @@ This repo consists the raw text documentation on Komodo CryptoConditions Smart C
 
 All the chapters are plain text files.
 
-- [INDEX](INDEX)
+- [INDEX](blob/master/INDEX)
 - [Chapter 0 - Bitcoin Protocol Basics](blob/master/Chapter%200%20-%20Bitcoin%20Protocol%20Basics)
 - [Chapter 1 - OP_CHECKCRYPTOCONDITION](blob/master/Chapter%201%20-%20OP_CHECKCRYPTOCONDITION)
 - [Chapter 2 - CC contract basics](blob/master/Chapter%202%20-%20CC%20contract%20basics)
