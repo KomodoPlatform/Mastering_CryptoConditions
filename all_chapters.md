@@ -195,17 +195,17 @@ Above are the specifics for the faucet CC, but each one has the equivalent in [C
 
 In order to get the above values, follow these steps:
 
-A. use getnewaddress to get a new address and put that in the `<CC>Normaladdr = "";` line
+A. use `getnewaddress` to get a new address and put that in the `<CC>Normaladdr = "";` line
 
-B. use validateaddress `<newaddress from A>` to get the pubkey, which is put into the `<CC>hexstr[67] = "";` line
+B. use `validateaddress` `<newaddress from A>` to get the pubkey, which is put into the `<CC>hexstr[67] = "";` line
 
-C. stop the daemon and start with `-pubkey=<pubkey from B>` and do a `<CC>`address RPC call. In the console you will get a printout of the hex for the privkey, assuming the if ( 0 ) in `Myprivkey()` is enabled ([CCutils.cpp](https://github.com/jl777/komodo/tree/jl777/src/cc/CCutils.cpp))
+C. stop the daemon [`komodod`] and start with `-pubkey=<pubkey from B>` and do a `<CC>address` RPC call. In the console you will get a printout of the hex for the privkey, assuming the if ( 0 ) in `Myprivkey()` is enabled ([CCutils.cpp](https://github.com/jl777/komodo/tree/jl777/src/cc/CCutils.cpp))
 
 D. update the `CCaddress` and `privkey` and dont forget to change the `-pubkey=` parameter
 
-The first RPC command to add is `<CC>`address and to do that, add a line to [rpcserver.h](https://github.com/jl777/komodo/tree/jl777/src/rpcserver.h) and update the commands array in [rpcserver.cpp](https://github.com/jl777/komodo/tree/jl777/src/rpcserver.cpp)
+The first RPC command to add is `<CC>address` and to do that, add a line to [rpcserver.h](https://github.com/jl777/komodo/tree/jl777/src/rpcserver.h) and update the commands array in [rpcserver.cpp](https://github.com/jl777/komodo/tree/jl777/src/rpcserver.cpp)
 
-In the [rpcwallet.cpp](https://github.com/jl777/komodo/tree/jl777/src/wallet/rpcwallet.cpp) file you will find the actual RPC functions, find one of the `<CC>`address ones, copy paste, change the eval code to your eval code and customize the function. Oh, and dont forget to add an entry into [eval.h](https://github.com/jl777/komodo/tree/jl777/src/cc/eval.h)
+In the [rpcwallet.cpp](https://github.com/jl777/komodo/tree/jl777/src/wallet/rpcwallet.cpp) file you will find the actual RPC functions, find one of the `<CC>address` ones, copy paste, change the eval code to your eval code and customize the function. Oh, and dont forget to add an entry into [eval.h](https://github.com/jl777/komodo/tree/jl777/src/cc/eval.h)
 
 Now you have made your own CC contract, but it wont link as you still need to implement the actual functions of it. This will be covered in the following chapters.
 
