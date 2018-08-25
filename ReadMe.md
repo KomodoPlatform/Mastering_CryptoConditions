@@ -2,6 +2,10 @@
 
 This repo consists the raw text documentation on Komodo CryptoConditions Smart Contracts, written by Komodo Platform core developer jl777 (James Lee).
 
+
+
+### Raw documentation text
+
 All the chapters are plain text files.
 
 - [INDEX](Index)
@@ -23,3 +27,21 @@ All the chapters are plain text files.
 - [Chapter 15 - RPC based dapps](Chapter%2015%20-%20RPC%20based%20dapps)
 
 
+### Formated documentation text draft
+
+All chapters are compiled to a nice draft in Markdown format which you can read in [all_chapters.md](all_chapters.md) file.
+
+
+### RPC Documentation of Example CryptoCondtions Contracts
+
+There is a work in progress RPC documentation for the first example/demo CryptoConditions smart contracts which you can find in [docs directory](docs/).
+
+
+### Translations and Community Contributions
+
+We are open to accept updates to this documentation with any improvements, updates, corrections, translations, example CryptoContracts code and such.
+
+Please feel free to push a pull request with your changes and our team will be happy to merge the changes after review.
+
+
+Happy coding smart contracts on Komodo Platform!
