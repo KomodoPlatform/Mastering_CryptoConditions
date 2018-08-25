@@ -43,5 +43,9 @@ We are open to accept updates to this documentation with any improvements, updat
 
 Please feel free to push a pull request with your changes and our team will be happy to merge the changes after review.
 
+#### Translations
+
+- [Russian](RU/)
+
 
 Happy coding smart contracts on Komodo Platform!
