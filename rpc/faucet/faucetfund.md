@@ -1,0 +1,79 @@
+## Create a faucet
+Usage: `faucetfund amount`
+
+### Step 1: Specify faucet amount and get the raw transaction HEX value
+Example Command:
+```shell
+./komodo-cli -ac_name=ATEST faucetfund 100
+```
+Output:
+```JSON
+{
+  "result": "success",
+  "hex": "01000000013c34d14c6a32219f4b633a1fe01f5826b3bd7b4cbe01c20cfc0c29138d9c99720100000049483045022100b265993f541d580f10e8820f9986bdd479859fdcb2e636dd1ee1b23506eebeac02202234a6e5141345459c4b4959e921aa85b9fa616f4c44ea15e53d08bf4885259501ffffffff0200e40b5402000000302ea22c8020e029c511da55523565835887e412e5a0c9b920801b007000df45e545f25028248103120c008203000401cce06d66fa15090000232103fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abcac00000000"
+}
+```
+### Step 2: Broadcast/send raw transaction
+Example Command:
+```shell
+./komodo-cli -ac_name=ATEST sendrawtransaction 01000000013c34d14c6a32219f4b633a1fe01f5826b3bd7b4cbe01c20cfc0c29138d9c99720100000049483045022100b265993f541d580f10e8820f9986bdd479859fdcb2e636dd1ee1b23506eebeac02202234a6e5141345459c4b4959e921aa85b9fa616f4c44ea15e53d08bf4885259501ffffffff0200e40b5402000000302ea22c8020e029c511da55523565835887e412e5a0c9b920801b007000df45e545f25028248103120c008203000401cce06d66fa15090000232103fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abcac00000000
+```
+Output:
+```JSON
+f2baf8d9a1eaf42bb1a85462b5699ffc0f04e8c54aafc4661767df96be9022b7
+```
+### Step 3: Decode raw transaction (optional to check if the values are sane)
+Example Command:
+```shell
+./komodo-cli -ac_name=ATEST decoderawtransaction 01000000013c34d14c6a32219f4b633a1fe01f5826b3bd7b4cbe01c20cfc0c29138d9c99720100000049483045022100b265993f541d580f10e8820f9986bdd479859fdcb2e636dd1ee1b23506eebeac02202234a6e5141345459c4b4959e921aa85b9fa616f4c44ea15e53d08bf4885259501ffffffff0200e40b5402000000302ea22c8020e029c511da55523565835887e412e5a0c9b920801b007000df45e545f25028248103120c008203000401cce06d66fa15090000232103fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abcac00000000
+```
+Output:
+```shell
+{
+  "txid": "f2baf8d9a1eaf42bb1a85462b5699ffc0f04e8c54aafc4661767df96be9022b7",
+  "size": 225,
+  "version": 1,
+  "locktime": 0,
+  "vin": [
+    {
+      "txid": "72999c8d13290cfc0cc201be4c7bbdb326581fe01f3a634b9f21326a4cd1343c",
+      "vout": 1,
+      "scriptSig": {
+        "asm": "3045022100b265993f541d580f10e8820f9986bdd479859fdcb2e636dd1ee1b23506eebeac02202234a6e5141345459c4b4959e921aa85b9fa616f4c44ea15e53d08bf4885259501",
+        "hex": "483045022100b265993f541d580f10e8820f9986bdd479859fdcb2e636dd1ee1b23506eebeac02202234a6e5141345459c4b4959e921aa85b9fa616f4c44ea15e53d08bf4885259501"
+      },
+      "sequence": 4294967295
+    }
+  ],
+  "vout": [
+    {
+      "value": 100.00000000,
+      "valueSat": 10000000000,
+      "n": 0,
+      "scriptPubKey": {
+        "asm": "a22c8020e029c511da55523565835887e412e5a0c9b920801b007000df45e545f25028248103120c008203000401 OP_CHECKCRYPTOCONDITION",
+        "hex": "2ea22c8020e029c511da55523565835887e412e5a0c9b920801b007000df45e545f25028248103120c008203000401cc",
+        "reqSigs": 1,
+        "type": "cryptocondition",
+        "addresses": [
+          "R9zHrofhRbub7ER77B7NrVch3A63R39GuC"
+        ]
+      }
+    },
+    {
+      "value": 99899.99980000,
+      "valueSat": 9989999980000,
+      "n": 1,
+      "scriptPubKey": {
+        "asm": "03fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abc OP_CHECKSIG",
+        "hex": "2103fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abcac",
+        "reqSigs": 1,
+        "type": "pubkey",
+        "addresses": [
+          "RANyPgfZZLhSjQB9jrzztSw66zMMYDZuxQ"
+        ]
+      }
+    }
+  ]
+}
+```
