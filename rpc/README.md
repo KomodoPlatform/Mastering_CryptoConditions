@@ -12,6 +12,7 @@ Select the contract to learn more about the contract from below.
 Lotto  
 Ponzi  
 Auction  
+FSM  
 
 ## How to start testing?
 Compile Komodo, navigate to `src` dir, start the test chain with your pubkey and issue the SmartContract RPC commands to test. All the instructions to get you started are below.
@@ -36,7 +37,7 @@ git checkout jl777
 ./zcutil/build.sh -j$(nproc)
 
 cd ~/komodo/src
-./komodod -ac_cc=1 -ac_name=ATX -addressindex=1 -spentindex=1 -ac_supply=1000 -ac_reward=10000000000000 -pubkey=<your_pub_key> -addnode=195.201.20.230 -addnode=195.201.137.5 -addnode=195.201.20.230 -addnode=94.130.224.11 &
+./komodod -ac_cc=1 -ac_name=<CHAIN_NAME> -addressindex=1 -spentindex=1 -ac_supply=1000 -ac_reward=10000000000000 -pubkey=<your_pub_key> -addnode=195.201.20.230 -addnode=195.201.137.5 -addnode=195.201.20.230 -addnode=94.130.224.11 &
 ```
 
 ## For Developers
