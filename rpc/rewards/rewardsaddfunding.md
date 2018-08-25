@@ -1,0 +1,89 @@
+## Add your funds to a Rewards Plan
+Usage: `rewardsaddfunding name fundingtxid amount`
+
+### Step 1: Create a raw transaction and get the HEX value
+Example Command:
+```shell
+./komodo-cli -ac_name=ATEST rewardsaddfunding FREE c0c5165902fd21728aed707888db082a72a013def8902c21626c1e5214f00fae 100
+```
+Output:
+```JSON
+{
+  "result": "success",
+  "hex": "010000000152a6b24c8494578c7c0e9a703d95b2061bd0512bd1a02d30e65fedb9d792466e0000000048473044022058653933f08ff93dc9d7693d558f4f25b7c64ef037f0d7a997fb9311bd28560002206fdefe808438d26f5c9298a251243ac1faaadcab0e85afac6a98468c576838ad01ffffffff0300e40b5402000000302ea22c802065686d47a4049c2c845a71895a915eb84c04445896eec5dc0be40df0b31372da8103120c008203000401ccf09466fa15090000232103fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abcac00000000000000002c6a2ae5414652454500000000ae0ff014521e6c62212c90f8de13a0722a08db887870ed8a7221fd025916c5c000000000"
+}
+```
+### Step 2: Broadcast raw transaction
+Example Command:
+```shell
+./komodo-cli -ac_name=ATEST sendrawtransaction 010000000152a6b24c8494578c7c0e9a703d95b2061bd0512bd1a02d30e65fedb9d792466e0000000048473044022058653933f08ff93dc9d7693d558f4f25b7c64ef037f0d7a997fb9311bd28560002206fdefe808438d26f5c9298a251243ac1faaadcab0e85afac6a98468c576838ad01ffffffff0300e40b5402000000302ea22c802065686d47a4049c2c845a71895a915eb84c04445896eec5dc0be40df0b31372da8103120c008203000401ccf09466fa15090000232103fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abcac00000000000000002c6a2ae5414652454500000000ae0ff014521e6c62212c90f8de13a0722a08db887870ed8a7221fd025916c5c000000000
+```
+Output:
+```JSON
+347b7023e95f00f55a2abf6475e50ecba273a73f37b2ed749fb2691745c231eb
+```
+### Step 3: Decode raw transaction (optional to check if the values are sane)
+Example Command:
+```shell
+./komodo-cli -ac_name=ATEST decoderawtransaction 010000000152a6b24c8494578c7c0e9a703d95b2061bd0512bd1a02d30e65fedb9d792466e0000000048473044022058653933f08ff93dc9d7693d558f4f25b7c64ef037f0d7a997fb9311bd28560002206fdefe808438d26f5c9298a251243ac1faaadcab0e85afac6a98468c576838ad01ffffffff0300e40b5402000000302ea22c802065686d47a4049c2c845a71895a915eb84c04445896eec5dc0be40df0b31372da8103120c008203000401ccf09466fa15090000232103fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abcac00000000000000002c6a2ae5414652454500000000ae0ff014521e6c62212c90f8de13a0722a08db887870ed8a7221fd025916c5c000000000
+```
+Output:
+```
+{
+  "txid": "347b7023e95f00f55a2abf6475e50ecba273a73f37b2ed749fb2691745c231eb",
+  "size": 277,
+  "version": 1,
+  "locktime": 0,
+  "vin": [
+    {
+      "txid": "6e4692d7b9ed5fe6302da0d12b51d01b06b2953d709a0e7c8c5794844cb2a652",
+      "vout": 0,
+      "scriptSig": {
+        "asm": "3044022058653933f08ff93dc9d7693d558f4f25b7c64ef037f0d7a997fb9311bd28560002206fdefe808438d26f5c9298a251243ac1faaadcab0e85afac6a98468c576838ad01",
+        "hex": "473044022058653933f08ff93dc9d7693d558f4f25b7c64ef037f0d7a997fb9311bd28560002206fdefe808438d26f5c9298a251243ac1faaadcab0e85afac6a98468c576838ad01"
+      },
+      "sequence": 4294967295
+    }
+  ],
+  "vout": [
+    {
+      "value": 100.00000000,
+      "valueSat": 10000000000,
+      "n": 0,
+      "scriptPubKey": {
+        "asm": "a22c802065686d47a4049c2c845a71895a915eb84c04445896eec5dc0be40df0b31372da8103120c008203000401 OP_CHECKCRYPTOCONDITION",
+        "hex": "2ea22c802065686d47a4049c2c845a71895a915eb84c04445896eec5dc0be40df0b31372da8103120c008203000401cc",
+        "reqSigs": 1,
+        "type": "cryptocondition",
+        "addresses": [
+          "RTsRBYL1HSvMoE3qtBJkyiswdVaWkm8YTK"
+        ]
+      }
+    },
+    {
+      "value": 99899.99990000,
+      "valueSat": 9989999990000,
+      "n": 1,
+      "scriptPubKey": {
+        "asm": "03fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abc OP_CHECKSIG",
+        "hex": "2103fe754763c176e1339a3f62ee6b9484720e17ee4646b65a119e9f6370c7004abcac",
+        "reqSigs": 1,
+        "type": "pubkey",
+        "addresses": [
+          "RANyPgfZZLhSjQB9jrzztSw66zMMYDZuxQ"
+        ]
+      }
+    },
+    {
+      "value": 0.00000000,
+      "valueSat": 0,
+      "n": 2,
+      "scriptPubKey": {
+        "asm": "OP_RETURN e5414652454500000000ae0ff014521e6c62212c90f8de13a0722a08db887870ed8a7221fd025916c5c0",
+        "hex": "6a2ae5414652454500000000ae0ff014521e6c62212c90f8de13a0722a08db887870ed8a7221fd025916c5c0",
+        "type": "nulldata"
+      }
+    }
+  ]
+}
+```
