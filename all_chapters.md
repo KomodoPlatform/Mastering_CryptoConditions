@@ -14,20 +14,20 @@ This document will be heavily example based so it will utilize many of the exist
 
 - [Chapter 0 - Bitcoin Protocol Basics](#chapter-0---bitcoin-protocol-basics)
 - [Chapter 1 - OP_CHECKCRYPTOCONDITION](#chapter-1---op_checkcryptocondition)
-- [Chapter 2 - CC contract basics](#chapter-2---cc-contract-basics)
+- [Chapter 2 - CC Contract Basics](#chapter-2---cc-contract-basics)
 - [Chapter 3 - CC vouts](#chapter-3---cc-vins-and-vouts)
-- [Chapter 4 - CC RPC extensions](#chapter-4---cc-rpc-extensions)
-- [Chapter 5 - CC validation](#chapter-5---cc-validation)
-- [Chapter 6 - faucet example](#chapter-6---faucet-example)
-- Chapter 7 - rewards example
-- Chapter 8 - assets example
-- Chapter 9 - dice example
-- Chapter 10 - lotto example
-- Chapter 11 - channels example
-- [Chapter 12 - limitless possibilities](#chapter-12---limitless-possibilities)
-- [Chapter 13 - different languages](#chapter-13---different-languages)
-- [Chapter 14 - runtime bindings](#chapter-14---runtime-bindings)
-- [Chapter 15 - RPC based dapps](#chapter-15---rpc-based-dapps)
+- [Chapter 4 - CC RPC Extensions](#chapter-4---cc-rpc-extensions)
+- [Chapter 5 - CC Validation](#chapter-5---cc-validation)
+- [Chapter 6 - Faucet Example](#chapter-6---faucet-example)
+- Chapter 7 - Rewards Example
+- Chapter 8 - Assets Example
+- Chapter 9 - Dice Example
+- Chapter 10 - Lotto Example
+- Chapter 11 - Channels Example
+- [Chapter 12 - Limitless Possibilities](#chapter-12---limitless-possibilities)
+- [Chapter 13 - Different Languages](#chapter-13---different-languages)
+- [Chapter 14 - Runtime Bindings](#chapter-14---runtime-bindings)
+- [Chapter 15 - RPC Based DApps](#chapter-15---rpc-based-dapps)
 - [Conclusion](#conclusion)
 
 
