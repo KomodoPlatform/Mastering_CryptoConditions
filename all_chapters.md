@@ -316,7 +316,7 @@ Now we can solve the DEX part of the tokenization, which turns out to be much si
 
 `asks` work by locking assets along with the required price. Partial fills can be supported and the RPC calls can mask the UTXO-ness of the funds/assets needed by automatically gathering the required amount of funds to fill the specific amount.
 
-With calls to cancel the pending `bid` or ask, we get a complete set of RPC calls that can support a COIN-centric DEX. 
+With calls to cancel the pending `bid` or `ask`, we get a complete set of RPC calls that can support a COIN-centric DEX. 
 
 In the future, it is expected that a token swap RPC can be supported to allow directly swapping one token for another, but at first it is expected that there wont be sufficient volumes for such token to token swaps, so it was left out of the initial implementation.
 
