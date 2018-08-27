@@ -323,6 +323,96 @@ In the future, it is expected that a token swap RPC can be supported to allow di
 With just these RPC calls and associated validation, we get the ability to issue tokens and trade them on a DEX!
 
 
+#### create
+
+```C
+ vin.0: normal input
+ vout.0: issuance assetoshis to CC
+ vout.1: tag sent to normal address of AssetsCCaddress
+ vout.2: normal output for change (if any)
+ vout.n-1: opreturn [EVAL_ASSETS] ['c'] [origpubkey] "<assetname>" "<description>"
+```
+ 
+#### transfer
+
+```C
+ vin.0: normal input
+ vin.1 .. vin.n-1: valid CC outputs
+ vout.0 to n-2: assetoshis output to CC
+ vout.n-2: normal output for change (if any)
+ vout.n-1: opreturn [EVAL_ASSETS] ['t'] [assetid]
+```
+ 
+#### buyoffer:
+
+```C
+ vins.: normal inputs (bid + change)
+ vout.0: amount of bid to unspendable
+ vout.1: normal output for change (if any)
+ vout.n-1: opreturn [EVAL_ASSETS] ['b'] [assetid] [amount of asset required] [origpubkey]
+```
+
+#### cancelbuy:
+
+```C
+ vin.0: normal input
+ vin.1: unspendable.(vout.0 from buyoffer) buyTx.vout[0]
+ vout.0: vin.1 value to original pubkey buyTx.vout[0].nValue -> [origpubkey]
+ vout.1: normal output for change (if any)
+ vout.n-1: opreturn [EVAL_ASSETS] ['o'] [assetid]
+``` 
+
+#### fillbuy:
+
+```C
+ vin.0: normal input
+ vin.1: unspendable.(vout.0 from buyoffer) buyTx.vout[0]
+ vin.2+: valid CC output satisfies buyoffer (tx.vin[2])->nValue
+ vout.0: remaining amount of bid to unspendable
+ vout.1: vin.1 value to signer of vin.2
+ vout.2: vin.2 assetoshis to original pubkey
+ vout.3: CC output for assetoshis change (if any)
+ vout.4: normal output for change (if any)
+ vout.n-1: opreturn [EVAL_ASSETS] ['B'] [assetid] [remaining asset required] [origpubkey]
+```
+
+
+#### selloffer:
+
+```C
+ vin.0: normal input
+ vin.1+: valid CC output for sale
+ vout.0: vin.1 assetoshis output to CC to unspendable
+ vout.1: CC output for change (if any)
+ vout.2: normal output for change (if any)
+ vout.n-1: opreturn [EVAL_ASSETS] ['s'] [assetid] [amount of native coin required] [origpubkey]
+```
+
+#### cancel:
+
+```C
+ vin.0: normal input
+ vin.1: unspendable.(vout.0 from exchange or selloffer) sellTx/exchangeTx.vout[0] inputTx
+ vout.0: vin.1 assetoshis to original pubkey CC sellTx/exchangeTx.vout[0].nValue -> [origpubkey]
+ vout.1: normal output for change (if any)
+ vout.n-1: opreturn [EVAL_ASSETS] ['x'] [assetid]
+```
+
+#### fillsell:
+
+```C
+ vin.0: normal input
+ vin.1: unspendable.(vout.0 assetoshis from selloffer) sellTx.vout[0]
+ vin.2+: normal output that satisfies selloffer (*tx.vin[2])->nValue
+ vout.0: remaining assetoshis -> unspendable
+ vout.1: vin.1 assetoshis to signer of vin.2 sellTx.vout[0].nValue -> any
+ vout.2: vin.2 value to original pubkey [origpubkey]
+ vout.3: CC asset for change (if any)
+ vout.4: CC asset2 for change (if any) 'E' only
+ vout.5: normal output for change (if any)
+ vout.n-1: opreturn [EVAL_ASSETS] ['S'] [assetid] [amount of coin still required] [origpubkey]
+```
+
 
 ## Chapter 9 - Dice Example
 
