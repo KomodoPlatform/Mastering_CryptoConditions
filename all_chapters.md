@@ -301,6 +301,51 @@ Having multiple possible rewards plans means it is useful to have RPC calls to g
 
 A locking transaction sends funds to the rewards CC address, along with a normal (small) `tx` to the address that the unlock should go to. This allows the validation of the proper unlocking.
 
+All of these things are done in rewards.cpp, with the validation code being about 200 lines and a total of 700 lines or so. Bigger than faucet, but most of the code is the non-consensus code to create the proper transactions. In order to simplify the validation, specific vin and vout positions are designated to have specific required values:
+
+#### createfunding
+
+```C
+vins.*: normal inputs
+vout.0: CC vout for funding
+vout.1: normal marker vout for easy searching
+vout.2: normal change
+vout.n-1: opreturn 'F' sbits APR minseconds maxseconds mindeposit
+```
+
+
+#### addfunding
+
+```C
+vins.*: normal inputs
+vout.0: CC vout for funding
+vout.1: normal change
+vout.n-1: opreturn 'A' sbits fundingtxid
+```
+
+#### lock
+
+```C
+vins.*: normal inputs
+vout.0: CC vout for locked funds
+vout.1: normal output to unlock address
+vout.2: change
+vout.n-1: opreturn 'L' sbits fundingtxid
+```
+
+#### unlock
+
+```C
+vin.0: locked funds CC vout.0 from lock
+vin.1+: funding CC vout.0 from 'F' and 'A' and 'U'
+vout.0: funding CC change
+vout.1: normal output to unlock address
+vout.n-1: opreturn 'U' sbits fundingtxid
+```
+
+It is recommended to create such a vin/vout allocation for each CC contract to make sure that the rpc calls that create the transaction and the validation code have a specific set of constraints that can be checked for.
+
+
 
 ## Chapter 8 - Assets Example
 In some respects the assets CC is the most complex, it was actually the first one that I coded. It is however using a simple model, even for the DEX functions, so while it is quite involved, it does not have the challenge/response complexity of dice.
