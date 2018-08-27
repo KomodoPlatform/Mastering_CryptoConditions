@@ -301,7 +301,7 @@ Having multiple possible rewards plans means it is useful to have RPC calls to g
 
 A locking transaction sends funds to the rewards CC address, along with a normal (small) `tx` to the address that the unlock should go to. This allows the validation of the proper unlocking.
 
-All of these things are done in rewards.cpp, with the validation code being about 200 lines and a total of 700 lines or so. Bigger than faucet, but most of the code is the non-consensus code to create the proper transactions. In order to simplify the validation, specific vin and vout positions are designated to have specific required values:
+All of these things are done in [rewards.cpp](https://github.com/jl777/komodo/tree/jl777/src/cc/rewards.cpp), with the validation code being about 200 lines and a total of 700 lines or so. Bigger than faucet, but most of the code is the non-consensus code to create the proper transactions. In order to simplify the validation, specific vin and vout positions are designated to have specific required values:
 
 #### createfunding
 
