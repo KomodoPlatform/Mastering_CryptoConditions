@@ -21,7 +21,7 @@ This document will be heavily example based so it will utilize many of the exist
 - [Chapter 6 - Faucet Example](#chapter-6---faucet-example)
 - [Chapter 7 - Rewards Example](#chapter-7---rewards-example)
 - [Chapter 8 - Assets Example](#chapter-8---assets-example)
-- Chapter 9 - Dice Example
+- [Chapter 9 - Dice Example](#chapter-9---dice-example)
 - Chapter 10 - Lotto Example
 - Chapter 11 - Channels Example
 - [Chapter 12 - Limitless Possibilities](#chapter-12---limitless-possibilities)
