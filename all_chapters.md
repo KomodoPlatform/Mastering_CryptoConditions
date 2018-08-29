@@ -14,20 +14,20 @@ This document will be heavily example based so it will utilize many of the exist
 
 - [Chapter 0 - Bitcoin Protocol Basics](#chapter-0---bitcoin-protocol-basics)
 - [Chapter 1 - OP_CHECKCRYPTOCONDITION](#chapter-1---op_checkcryptocondition)
-- [Chapter 2 - CC contract basics](#chapter-2---cc-contract-basics)
+- [Chapter 2 - CC Contract Basics](#chapter-2---cc-contract-basics)
 - [Chapter 3 - CC vouts](#chapter-3---cc-vins-and-vouts)
-- [Chapter 4 - CC RPC extensions](#chapter-4---cc-rpc-extensions)
-- [Chapter 5 - CC validation](#chapter-5---cc-validation)
-- [Chapter 6 - faucet example](#chapter-6---faucet-example)
-- Chapter 7 - rewards example
-- Chapter 8 - assets example
-- Chapter 9 - dice example
-- Chapter 10 - lotto example
-- Chapter 11 - channels example
-- [Chapter 12 - limitless possibilities](#chapter-12---limitless-possibilities)
-- [Chapter 13 - different languages](#chapter-13---different-languages)
-- [Chapter 14 - runtime bindings](#chapter-14---runtime-bindings)
-- [Chapter 15 - RPC based dapps](#chapter-15---rpc-based-dapps)
+- [Chapter 4 - CC RPC Extensions](#chapter-4---cc-rpc-extensions)
+- [Chapter 5 - CC Validation](#chapter-5---cc-validation)
+- [Chapter 6 - Faucet Example](#chapter-6---faucet-example)
+- [Chapter 7 - Rewards Example](#chapter-7---rewards-example)
+- [Chapter 8 - Assets Example](#chapter-8---assets-example)
+- Chapter 9 - Dice Example
+- Chapter 10 - Lotto Example
+- Chapter 11 - Channels Example
+- [Chapter 12 - Limitless Possibilities](#chapter-12---limitless-possibilities)
+- [Chapter 13 - Different Languages](#chapter-13---different-languages)
+- [Chapter 14 - Runtime Bindings](#chapter-14---runtime-bindings)
+- [Chapter 15 - RPC Based DApps](#chapter-15---rpc-based-dapps)
 - [Conclusion](#conclusion)
 
 
@@ -281,8 +281,183 @@ Combined, it became such a pain to get 0.1 coins, the faucet leeching problem wa
 
 
 ## Chapter 7 - Rewards Example
+The next CC contract in complexity is the rewards CC contract. This is designed to capture what most people like about masternodes, without anything else, ie. the rewards!
+
+The idea is to allow people to lock funds for some amount of time and get an extra reward. We also want to support having more than one rewards plan at a time and to allow customization of plan details. One twist that makes it a bit unexpected is that anybody should be able to unlock the funds that were locked, as long as it ends up in the locking address. The reason for this is that SPV servers want to be supported and while locking can be done via normal `sendrawtransaction`, it requires a native node to do the unlocking. By allowing anybody to be able to unlock, then there can be a special node that unlocks all locked funds when they are ready. This way, from the user's point of view, they lock the funds and after it is matured, it reappears in their wallet.
+
+The above requirements leads us to using the global CC address for the rewards contract to lock the funds in. That allows anybody to properly sign the unlock, but of course that is not enough, we need to make sure they are following all the unlock requirements. Primarily that the funds go back to the locking address.
+
+The four aspects of the rewards plan that are customizable are:
+
+`APR`, `minseconds`, `maxseconds`, `mindeposit`
+
+This allows each plan to set a different APR (up to 25%, anything above is becoming silly), the minimum time funds must be locked, the maximum time they are earning rewards and the minimum that can be deposited.
+
+So the `tx` that creates the rewards plan will have these attributes and it is put into the `OP_RETURN` data. All the other calls will reference the plan creation `txid` and inherit these parameters from the creation `tx`. This means it is an important validation to do, to make sure the funding `txid` is a valid funding `txid`.
+
+Since it is possible that the initial funding will be used up, there needs to be a way for more funding to be added to the rewards plan.
+
+Having multiple possible rewards plans means it is useful to have RPC calls to get information about them. Hence: `rewardslist` returns the list of rewards creation `txid`s and `rewardsinfo <txid>` returns the details about a specific rewards plan.
+
+A locking transaction sends funds to the rewards CC address, along with a normal (small) `tx` to the address that the unlock should go to. This allows the validation of the proper unlocking.
+
+All of these things are done in [rewards.cpp](https://github.com/jl777/komodo/tree/jl777/src/cc/rewards.cpp), with the validation code being about 200 lines and a total of 700 lines or so. Bigger than faucet, but most of the code is the non-consensus code to create the proper transactions. In order to simplify the validation, specific vin and vout positions are designated to have specific required values:
+
+#### createfunding
+
+```C
+vins.*: normal inputs
+vout.0: CC vout for funding
+vout.1: normal marker vout for easy searching
+vout.2: normal change
+vout.n-1: opreturn 'F' sbits APR minseconds maxseconds mindeposit
+```
+
+
+#### addfunding
+
+```C
+vins.*: normal inputs
+vout.0: CC vout for funding
+vout.1: normal change
+vout.n-1: opreturn 'A' sbits fundingtxid
+```
+
+#### lock
+
+```C
+vins.*: normal inputs
+vout.0: CC vout for locked funds
+vout.1: normal output to unlock address
+vout.2: change
+vout.n-1: opreturn 'L' sbits fundingtxid
+```
+
+#### unlock
+
+```C
+vin.0: locked funds CC vout.0 from lock
+vin.1+: funding CC vout.0 from 'F' and 'A' and 'U'
+vout.0: funding CC change
+vout.1: normal output to unlock address
+vout.n-1: opreturn 'U' sbits fundingtxid
+```
+
+It is recommended to create such a vin/vout allocation for each CC contract to make sure that the rpc calls that create the transaction and the validation code have a specific set of constraints that can be checked for.
+
+
 
 ## Chapter 8 - Assets Example
+In some respects the assets CC is the most complex, it was actually the first one that I coded. It is however using a simple model, even for the DEX functions, so while it is quite involved, it does not have the challenge/response complexity of dice.
+
+There are two major aspects to creating tokens. First is to create and track it, down to every specific satoshi. The second is solving how to implement DEX functions of trading assets.
+
+The model used is "colored coins". This means that the token creating txid issues the assets as denoted by all the satoshis, so locking 1 COIN issues 100 million tokens. This multiplication will allow creation of plenty of assets. We want to preserve all the tokens created across all allowed operations. The way this is achieved is that all operations attaches the token creation `txid` in its `OP_RETURN`, along with the specified operation.
+Ownership of tokens are represented by the colored satoshis in the CC address for the user's `pubkey`. This allows using the standard UTXO system to automatically track ownership of the tokens. This automatic inheritance is one of the big advantages of UTXO CC contracts that compensates for the slightly more work needed to implement a CC contract.
+
+So now we have the standard CC addresss, list and info commands that provide the CC addresses, list of all tokens and info on specific tokens and the ability to create and transfer tokens. Any amount of tokens can be created from 1 to very large numbers and using standard `addressbalance`, `addressutxo` type of commands, the details of all assets owned can be determined for a specific pubkey.
+
+Now we can solve the DEX part of the tokenization, which turns out to be much simpler than initially imagined. We start with bidding for a specific token. Funds for the `bid` are locked into the global CC address, along with the desired token and price. This creates a `bid` UTXO that is able to be listed via an orderbook RPC call. To fill the `bid`, a specific `bid` UTXO is spent with the appropriate number of assets and change and updated price for the unfilled amount. if the entire amount is filled, then it wont appear in the orderbook anymore.
+
+`asks` work by locking assets along with the required price. Partial fills can be supported and the RPC calls can mask the UTXO-ness of the funds/assets needed by automatically gathering the required amount of funds to fill the specific amount.
+
+With calls to cancel the pending `bid` or `ask`, we get a complete set of RPC calls that can support a COIN-centric DEX. 
+
+In the future, it is expected that a token swap RPC can be supported to allow directly swapping one token for another, but at first it is expected that there wont be sufficient volumes for such token to token swaps, so it was left out of the initial implementation.
+
+With just these RPC calls and associated validation, we get the ability to issue tokens and trade them on a DEX!
+
+
+#### create
+
+```C
+ vin.0: normal input
+ vout.0: issuance assetoshis to CC
+ vout.1: tag sent to normal address of AssetsCCaddress
+ vout.2: normal output for change (if any)
+ vout.n-1: opreturn [EVAL_ASSETS] ['c'] [origpubkey] "<assetname>" "<description>"
+```
+ 
+#### transfer
+
+```C
+ vin.0: normal input
+ vin.1 .. vin.n-1: valid CC outputs
+ vout.0 to n-2: assetoshis output to CC
+ vout.n-2: normal output for change (if any)
+ vout.n-1: opreturn [EVAL_ASSETS] ['t'] [assetid]
+```
+ 
+#### buyoffer:
+
+```C
+ vins.: normal inputs (bid + change)
+ vout.0: amount of bid to unspendable
+ vout.1: normal output for change (if any)
+ vout.n-1: opreturn [EVAL_ASSETS] ['b'] [assetid] [amount of asset required] [origpubkey]
+```
+
+#### cancelbuy:
+
+```C
+ vin.0: normal input
+ vin.1: unspendable.(vout.0 from buyoffer) buyTx.vout[0]
+ vout.0: vin.1 value to original pubkey buyTx.vout[0].nValue -> [origpubkey]
+ vout.1: normal output for change (if any)
+ vout.n-1: opreturn [EVAL_ASSETS] ['o'] [assetid]
+``` 
+
+#### fillbuy:
+
+```C
+ vin.0: normal input
+ vin.1: unspendable.(vout.0 from buyoffer) buyTx.vout[0]
+ vin.2+: valid CC output satisfies buyoffer (tx.vin[2])->nValue
+ vout.0: remaining amount of bid to unspendable
+ vout.1: vin.1 value to signer of vin.2
+ vout.2: vin.2 assetoshis to original pubkey
+ vout.3: CC output for assetoshis change (if any)
+ vout.4: normal output for change (if any)
+ vout.n-1: opreturn [EVAL_ASSETS] ['B'] [assetid] [remaining asset required] [origpubkey]
+```
+
+
+#### selloffer:
+
+```C
+ vin.0: normal input
+ vin.1+: valid CC output for sale
+ vout.0: vin.1 assetoshis output to CC to unspendable
+ vout.1: CC output for change (if any)
+ vout.2: normal output for change (if any)
+ vout.n-1: opreturn [EVAL_ASSETS] ['s'] [assetid] [amount of native coin required] [origpubkey]
+```
+
+#### cancel:
+
+```C
+ vin.0: normal input
+ vin.1: unspendable.(vout.0 from exchange or selloffer) sellTx/exchangeTx.vout[0] inputTx
+ vout.0: vin.1 assetoshis to original pubkey CC sellTx/exchangeTx.vout[0].nValue -> [origpubkey]
+ vout.1: normal output for change (if any)
+ vout.n-1: opreturn [EVAL_ASSETS] ['x'] [assetid]
+```
+
+#### fillsell:
+
+```C
+ vin.0: normal input
+ vin.1: unspendable.(vout.0 assetoshis from selloffer) sellTx.vout[0]
+ vin.2+: normal output that satisfies selloffer (*tx.vin[2])->nValue
+ vout.0: remaining assetoshis -> unspendable
+ vout.1: vin.1 assetoshis to signer of vin.2 sellTx.vout[0].nValue -> any
+ vout.2: vin.2 value to original pubkey [origpubkey]
+ vout.3: CC asset for change (if any)
+ vout.4: CC asset2 for change (if any) 'E' only
+ vout.5: normal output for change (if any)
+ vout.n-1: opreturn [EVAL_ASSETS] ['S'] [assetid] [amount of coin still required] [origpubkey]
+```
+
 
 ## Chapter 9 - Dice Example
 
