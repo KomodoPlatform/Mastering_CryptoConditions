@@ -10,85 +10,88 @@
 Начать писать контракты на основе UTXO немного сложнее чем для контрактов основанных на баланах. Однако, они гораздо более безопасны, поскольку используют существующую систему UTXO Bitcoin. Это делает гораздо менее вероятным появление багов, из-за которых можно выпустить квадриллион новых монет, поскольку все операции с CC контрактом также должны подчиняться существующему UTXO протоколу Bitcoin.
 
 Данный документ будет в значительной степени основан на примерах, то есть будет использовать много отсылок к существующим CC. После осознания данного документа, вы должны быть достаточно подготовлены чтобы начать создавать новые CC контракты для интеграции в komodod, либо непосредственно dAPPS на основе RPC.
-- [Chapter 0 - Bitcoin Protocol Basics](#chapter-0---bitcoin-protocol-basics)
-- [Chapter 1 - OP_CHECKCRYPTOCONDITION](#chapter-1---op_checkcryptocondition)
-- [Chapter 2 - CC contract basics](#chapter-2---cc-contract-basics)
-- [Chapter 3 - CC vouts](#chapter-3---cc-vins-and-vouts)
-- [Chapter 4 - CC RPC extensions](#chapter-4---cc-rpc-extensions)
-- [Chapter 5 - CC validation](#chapter-5---cc-validation)
-- [Chapter 6 - faucet example](#chapter-6---faucet-example)
-- Chapter 7 - rewards example
-- Chapter 8 - assets example
-- Chapter 9 - dice example
-- Chapter 10 - lotto example
-- Chapter 11 - channels example
-- [Chapter 12 - limitless possibilities](#chapter-12---limitless-possibilities)
-- [Chapter 13 - different languages](#chapter-13---different-languages)
-- [Chapter 14 - runtime bindings](#chapter-14---runtime-bindings)
-- [Chapter 15 - RPC based dapps](#chapter-15---rpc-based-dapps)
-- [Conclusion](#conclusion)
+- [Глава 0 - Основы протокола Bitcoin](#chapter-0---bitcoin-protocol-basics)
+- [Глава 1 - OP_CHECKCRYPTOCONDITION](#chapter-1---op_checkcryptocondition)
+- [Глава 2 - CC contract basics](#chapter-2---cc-contract-basics)
+- [Глава 3 - CC vouts](#chapter-3---cc-vins-and-vouts)
+- [Глава 4 - CC RPC extensions](#chapter-4---cc-rpc-extensions)
+- [Глава 5 - CC validation](#chapter-5---cc-validation)
+- [Глава 6 - faucet example](#chapter-6---faucet-example)
+- Глава 7 - rewards example
+- Глава 8 - assets example
+- Глава 9 - dice example
+- Глава 10 - lotto example
+- Глава 11 - channels example
+- [Глава 12 - limitless possibilities](#chapter-12---limitless-possibilities)
+- [Глава 13 - different languages](#chapter-13---different-languages)
+- [Глава 14 - runtime bindings](#chapter-14---runtime-bindings)
+- [Глава 15 - RPC based dapps](#chapter-15---rpc-based-dapps)
+- [Заключение](#conclusion)
 
 
 
-## Chapter 0 - Bitcoin Protocol Basics
-There are many aspects of the bitcoin protocol that isnt needed to understand the CC contracts dependence on it. Such details will not be discussed. The primary aspect is the UTXO, Unspent Transaction Output. Just a fancy name for `txid/vout`, so when you sendtoaddress some coins, it creates a `txid` and the first output is `vout.0`, combine it and `txid/0` is a specific UTXO.
+## Глава 0 - Основы протокола Bitcoin
+Существует множество аспектов протокола Bitcoin, для которых не требуется понимание зависимости от них СС контрактов. Подобные детали не будут обсуждаться. Главный аспект - `UTXO`, неизрасходованный выход транзакции. Это просто причудливое имя для txid/vout, то есть когда вы отправляете (sendtoaddress) некоторые монеты это создает `txid` (идентификатор транзакии) и первый выход - `vout.0` совмещая его и `txid/0` получается определенная `UTXO`.
 
-Of course, to understand even this level of detail requires that you understand what a `txid` is, but there are plenty of reference materials on that. It is basically the 64 char long set of letters and numbers that you get when you send funds.
+Конечно, чтобы получить понимание даже на этом уровне объяснения вам нужно знать что такое `txid`, однако существует много справочных материалов по данному вопросу. Собственно это просто набор букв и цифр длиной в 64 символа который вы получаете когда отправляете средства.
 
-Implicit with the UTXO is that it prevents double spends. Once you spend a UTXO, you cant spend it again. This is quite an important characteristic and while advanced readers will point out chain reorgs can allow a double spend, we will not confuse the issue with such details. The important thing is that given a blockchain at a specific height's blockhash, you can know if a `txid/vout` has been spent or not.
+Безоговорочным для `UTXO` является то, что, они предотвращают двойные расходы. Как только вы потратили `UTXO`, вы не можете потратить его снова. Это достаточно важная характеристика, может быть наши продвинутые читатели укажут на то, что перестроение блокчейна может позволить двойное списание - мы не будет запутывать проблему такими деталями. Важно то, что на данном блокчейне на блокхэше конкретной высоты вы можете знать была ли потрачена `txid/vout` или нет.
 
-There are also the transactions that are in memory waiting to be mined, the mempool. And it is possible for the utxo to be spent by a `tx` in the mempool. However since it isnt confirmed yet, it is still unspent at the current height, even if we are pretty sure it will be spent in the next block.
+Так же существуют транзакции которые находятся в памяти, ожидая пока их "смайнят" - `mempool`. И для `utxo` возможно быть потраченным транзакцией (`tx`) в `mempool`. Однако, так как это еще не подтверждено, он все еще непотрачен на текущей высоте, даже если мы достаточно точно уверены в том, что он будет потрачен в следующем блоке.
 
-A useful example is to think about a queue of people lined up to get into an event. They need to have a valid ticket and also to get into the queue. After some time passes, they get their ticket stamped and allowed into the event.
+Неплохой пример - подумать об очереди людей, выстроившихся в линию чтобы попасть на событие. Им нужно иметь валидный билет а так же встать в очередь. По прошествии какого-то времени на их билете ставится отметка и они попадают на событие.
 
-In the UTXO case, the ticket is the spending transaction and the event is the confirmed blockchain. The queue is the mempool.
+В случае с `UTXO`, билет это тратящая транзакция, а событие это подтвержденный блокчейн. Очередь это `mempool`.
 
 
 
-## Chapter 1 - OP_CHECKCRYPTOCONDITION
-In the prior chapter the UTXO was explained. However, the specific mechanism used to send a payment was not explained. Contrary to what most people might think, on the blockchain there are not entries that say "pay X amount to address". Instead what exists is a bitcoin script that must be satisfied in order for the funds to be able to be spent.
+## Глава 1 - OP_CHECKCRYPTOCONDITION
+В предыдущей главе были объяснены UTXO. Однако конкретный механизм, используемый для отправки платежа, не объяснялся. Вопреки тому, что, думает большинство людей, на блокчейне нет записей в духе "заплати сумму X на такой-то адрес". Вместо этого существует биткоин-скрипт (https://en.bitcoin.it/wiki/Script), который должен быть удовлетворен для того, чтобы средства могли быть потрачены.
 
-Originally, there was the pay to pubkey script:
-
-```
-<pubkey> <checksig>
-```
-
-About as simple of a payment script that you can get. Basically the pubkey's signature is checked and if it is valid, you get to spend it. Once problem satoshi realized was that with Quantum Computers such payment scripts are vulnerable! So, he made a way to have a cold address, ie. an address whose pubkey isnt known. At least it isnt known until it is spent, so it is only Quantum resistant prior to the first spend. This line of reasoning is why we have one time use addresses and a new change address for each transaction. Maybe in some ways, this is too forward thinking as it makes things a lot more confusing to use and easier to lose track of all the required private keys.
-
-However, it is here to stay and its script is:
+Первоначально в нем была оплата на pubkey (публичный ключ) скрипт:
 
 ```
-<hash the pubkey> <pubkey> <verify hash matches> <checksig>
+EN: <pubkey> <checksig>
+RU: <публичный ключ> <проверка валидности подписи транзакции>
 ```
 
-With this, the blockchain has what maps to "pay to address", just that the address is actually a base58 encoded (prefix + pubkeyhash). Hey, if it wasnt complicated, it would be easy!
+Пожалуй выше самый простой платежный скрипт который вы можете сделать. Подпись pubkey проверятся, и если она валидная вы можете это потратить.  Одна из проблем которую понял Сатоши это то, что с квантовыми компьютерами подобные платежные скрипты уязывимы! Тогда он сделал способ иметь холодный адрес, то есть такой адрес чей pubkey не известен. Он неизвестен по крайней мере  до того момента как будет потрачен, то есть подобная схема защищена от квантовых компьютеров только до первой траты. Данная линия рассуждений это то, почему мы имеем одноразовые адреса и смену адреса для каждой транзакции. Возможно в некотором роде это мышление слишком наперед, поскольку это делает вещи гораздо более запутанными и легче потерять все необходимые приватные ключи.
 
-In order to spend a `p2pkh` (pay to pubkey hash) UTXO, you need to divulge the pubkey in addition to having a valid signature. After the first spend from an address, its security is degraded to `p2pk` (pay to pubkey) as its pubkey is now known. The net result is that each reused address takes 25 extra bytes on the blockchain, and that is why for addresses that are expected to be reused, I just use the `p2pk` script.
-
-Originally, bitcoin allowed any type of script opcodes to be used directly. The problem was some of them caused problems and satoshi decided to disable them and only allow standard forms of payments. Thus the `p2pk` and `p2pkh` became 99%+ of bitcoin transactions. However, going from having a fully scriptable language that can create countless payment scripts (and bugs!), to having just 2... well it was a "short term" limitation. It did last for some years but eventually a compromise `p2sh` script was allowed to be standard. This is a pay to script hash, so it can have a standard format as the normal `p2pkh`, but have infinitely more flexibility.
+Однако это общепринято и текущий скрипт:
 
 ```
-<hash the script> <script> <verify hash matches>
+EN: <hash the pubkey> <pubkey> <verify hash matches> <checksig>
+RU: <хэш публичного ключа> <публичный ключ> <подтверждение совпадение хэшей> <проверка валидности подписи транзакции>
 ```
 
-Wait, something is wrong! If it was just that, then anybody that found out what the required script (called redeemscript) was, they could just spend it. I forgot to say that the redeemscript is then used to determine if the payment can be spent or not. So you can have a normal `p2pk` or `p2pkh` redeemscript inside a `p2sh` script.
+При этом блокчейн имеет то, что образует пару с "платежом на адрес", а имеено то, что адрес на самом деле закодирован в варианте Base58 (prefix + pubkeyhash, https://ru.wikipedia.org/wiki/Base58). Эй, если бы это было не сложно - это было бы легко!
 
-OK, I know that just got really confusing. Let us have a more clear example:
+Чтобы потратить `p2pkh` (pay to pubkey hash, хэш платежа на публичный ключ) UTXO, вам нужно разгласить публичный ключ в дополнение к валидной подписи. После первой траты с адреса его безопасность деградирует до `p2pk` (pay to pubkey, платеж на публичный ключ) так как теперь ее публичный ключ известен. Конечным результатом является то, что каждый повторно используемый адрес занимает 25 дополнительных байт в блокчейне, и это причина по которой для адресов с ожидаемым повторным использованием я просто использую `p2pk` скрипт.
+
+Изначально биткоин позволял любой тип скриптов кодов операций (opcodes) для прямого использования. Трудность была в том, что некоторые из них вызывали проблемы и Сатоши решил отключить их и разрешить только стандартные формы платежей. Так `p2pk` и `p2pkh` стали 99%+ транзакций Bitcoin. Однако, переход от наличия полностью скритового языка который может создавать бесчисленные платежные скрипты (и баги!), чтобы иметь всего 2 (скрипта)... ну, это было "краткосрочное" ограничение. Это продолжалось в течение нескольких лет, но в конечном итоге компромиссный `p2sh` скрипт был признан стандартом. Это платеж хэшу скрипта (script hash), то есть он может обладать стандартным форматом как нормальный `p2pkh`, но иметь бесконечно больше гибкости.
 
 ```
-redeemscript <- pay to pubkey 
+EN: <hash the script> <script> <verify hash matches>
+RU: <хэш скрипта> <скрипт> <подтверждение совпадения хэша>
 ```
 
-`p2sh` becomes the hash of the redeem script + the compares
+Подождите, что-то не так! Если бы все было бы действительно так, тогда любой кто нашел требуемый скрипт (называемый `redeemscript`, скрипт высвобождения платежа) мог бы просто потратить транзакцию. Я забыл сказать что `redeemscript` затем используется чтобы оопределить был ли потрачен платеж или нет. Таким образом вы можете иметь нормальный `p2pk` либо `p2pkh` `redeemscript` внутри `p2sh` скрипта.
 
-So to spend it, you need to divulge the redeemscript, which in turn requires you to divulge the pubkey. Put it all together and the `p2sh` mechanism verifies you not only had the correct redeemscript by comparing its hash, but that when the redeemscript is run, it is satisfied. In this case, that the pubkey's signature was valid.
+Окей, я знаю что это реально запутанно. Давайте посмотрим на более понятный пример:
 
-If you are still following, there is some good news! `OP_CHECKCRYPTOCONDITION` scripts are actually simpler than `p2sh` scripts in some sense as there isnt this extra level of script inside a scripthash. [@libscott](https://github.com/libscott) implemented the addition of `OP_CHECKCRYPTOCONDITION` to the set of bitcoin opcodes and what it does is makes sure that a CryptoConditions script is properly signed.
+```
+redeemscript <- pay to pubkey
+```
 
-Which gets us to the CryptoConditions specification, which is a monster of a [IETF (Internet standards) draft](https://tools.ietf.org/html/draft-thomas-crypto-conditions-04) and has hundred(s) of pages of specification. I am sure you are happy to know that you dont really need to know about it much at all! Just know that you can create all sorts of cryptoconditions and its binary encoding can be used in a bitcoin UTXO. If the standard CC contracts dont have the power you need, it is always possible to expand on it. So far, most all the CC contracts only need the power of a 1of1 CC script, which is 1 signature combined with custom constraints. The realtime payment channels CC is the only one of the reference CC contracts so far that didnt fit into this model, it needed a 1of2 CC script.
+`p2sh` становится хэшом высвобождающего скрипта + сравнения
 
-The best part is that all these opcode level things are not needed at all. I just wanted to explain it for those that need to know all the details of everything.
+Поэтому, чтобы потратить его, вам нужно разгласить reedemscript, который, в свою очередь, требует от вас разглашения pubkey. Смешайте это все вместе и `p2sh` механизм  не только подтверждает сравнением хэша то, что у вас есть корректный reeedemscript, но и то, что когда reedemsctipt запущен он удовлетворен.  В этом случае подпись публичного ключа валидна.
+
+Если вы все еще следите за нитью рассуждений - есть хорошие новости! `OP_CHECKCRYPTOCONDITION` скрипты на самом деле в некотором смысле проще чем p2sh скрипты, поскольку не имеют дополнительного уровня скриптов внутри scripthash. @libscott реализовал добавление `OP_CHECKCRYPTOCONDITION` в набор функций (opcodes) Bitcoin и что он делает, так это убеждается в том, что CryptoConditions скрипт правильно подписан.
+
+Что дает нам спецификацию CryptoConditions, монстр от проекта [IETF (Internet standards) draft](https://tools.ietf.org/html/draft-thomas-crypto-conditions-04) с сотнями страниц спецификации. Я уверен что вы будете рады узнать что вам не требуется знать о ней много! Просто знайте, что вы можете создавать всевозможные cryptoconditions а его двоичное представление может быть использовано в UTXO Bitcoin. Если стандартные CC контракты не обладают необходимой вам мощностью, всегда возможно их всегда можно расширить. Пока что большинству CC контрактов требуется мощщность только 1из1 CC скрипта, в котором 1 подпись сочетается с заданными ограничениями. CC каналов оплаты в режиме реального времени  - единственный из стандартных CC контрактов, который не вписывался в эту модель, для него нужен 1из2 CC скрипт.
+
+Самое приятное это то, что все эти вещи на уровне opcodes вообще не требуются. Я просто хотел объяснить это тем, кто хочет знать все в деталях.
 
 
 
@@ -124,7 +127,7 @@ In the [~/komodo/src/cc/eval.h](https://github.com/jl777/komodo/tree/jl777/src/c
         EVAL(EVAL_GATEWAYS, 0xf1)
 ```
 
-Ultimately, we will probably end up with all 256 eval codes used, for now there is plenty of room. I imagined that similar to my coins repo, we can end up with a much larger than 256 number of CC contracts and you select the 256 that you want active for your blockchain. That does mean any specific chain will be limited to "only" having 256 contracts. Since there seems to be so few actually useful contracts so far, this limit seems to be sufficient. I am told that the evalcode can be of any length, but the current CC contracts assumes it is one byte. 
+Ultimately, we will probably end up with all 256 eval codes used, for now there is plenty of room. I imagined that similar to my coins repo, we can end up with a much larger than 256 number of CC contracts and you select the 256 that you want active for your blockchain. That does mean any specific chain will be limited to "only" having 256 contracts. Since there seems to be so few actually useful contracts so far, this limit seems to be sufficient. I am told that the evalcode can be of any length, but the current CC contracts assumes it is one byte.
 
 The simplest CC script would be one that requires a signature from a pubkey along with a CC validation. This is the equivalent of the pay to pubkey bitcoin script and is what most of the initial CC contracts use. Only the channels one needed more than this and it will be explained in its chapter.
 We end up with CC scripts of the form (`evalcode`) + (`pubkey`) + (other stuff), dont worry about the other stuff, it is automatically handled with some handy internal functions. The important thing to note is that each CC contract of this form needs a single pubkey and eval code and from that we get the CC script. Using the standard bitcoin's "hash and make an address from it" method, this means that the same pubkey will generate a different address for each different CC contract!
@@ -234,7 +237,7 @@ Finally, we are ready for the first actual example of a CC contract. The faucet.
 
 The code in [~/komodo/src/cc/faucet.cpp](https://github.com/jl777/komodo/tree/jl777/src/cc/faucet.cpp) is the ultimate documentation for it with all the details, so I will just address the conceptual issues here.
 
-There are only 7 functions in [faucet.cpp](https://github.com/jl777/komodo/tree/jl777/src/cc/faucet.cpp), a bit over 200 lines including comments. The first three are for validation, the last four for the RPC calls to use. 
+There are only 7 functions in [faucet.cpp](https://github.com/jl777/komodo/tree/jl777/src/cc/faucet.cpp), a bit over 200 lines including comments. The first three are for validation, the last four for the RPC calls to use.
 
 ```C
 int64_t IsFaucetvout(struct CCcontract_info *cp,const CTransaction& tx,int32_t v)
@@ -268,7 +271,7 @@ No magic, just simple conversion of a user command line call that runs code insi
 
 `faucetget` allows anybody to get 0.1 coins from the faucet as long as they dont violate the rules.
 
-And we come to what it is all about. The rules of the faucet. Initially it was much less strict and that allowed it to be drained slowly, but automatically and it prevented most from being able to use the faucet. 
+And we come to what it is all about. The rules of the faucet. Initially it was much less strict and that allowed it to be drained slowly, but automatically and it prevented most from being able to use the faucet.
 
 To make it much harder to leech, it was made so each `faucetget` returned only 0.1 coins (down from 1.0) so it was worth 90% less. It was also made so that it had to be to a fresh address with less than 3 transactions. Finally each txid was constrained to start and end with 00! This is a cool trick to force usage of precious CPU time (20 to 60 seconds depending on system) to generate a valid txid. Like PoW mining for the txid and I expect other CC contracts to use a similar mechanism if they want to rate limit usage.
 
