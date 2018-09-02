@@ -12,7 +12,7 @@
 Данный документ будет в значительной степени основан на примерах, то есть будет использовать много отсылок к существующим CC. После осознания данного документа, вы должны быть достаточно подготовлены чтобы начать создавать новые CC контракты для интеграции в komodod, либо непосредственно dAPPS на основе RPC.
 - [Глава 0 - Основы протокола Bitcoin](#chapter-0---bitcoin-protocol-basics)
 - [Глава 1 - OP_CHECKCRYPTOCONDITION](#chapter-1---op_checkcryptocondition)
-- [Глава 2 - CC contract basics](#chapter-2---cc-contract-basics)
+- [Глава 2 - Основы СС контрактов](#chapter-2---cc-contract-basics)
 - [Глава 3 - CC vouts](#chapter-3---cc-vins-and-vouts)
 - [Глава 4 - CC RPC extensions](#chapter-4---cc-rpc-extensions)
 - [Глава 5 - CC validation](#chapter-5---cc-validation)
@@ -95,18 +95,18 @@ redeemscript <- pay to pubkey
 
 
 
-## Chapter 2 - CC Contract Basics
-Each CC contract has an eval code, this is just an arbitrary number that is associated with a specific CC contract. The details about a specific CC contract are all determined by the validation logic, that is ultimately what implements a CC contract.
+## Глава 2 - Основы СС контрактов
+Каждый CC контракт имеет "eval" код, это просто произвольное число, связанное с конкретным СС конрактом. Детали конкретного CC конртакта полностью определяются логикой валидации, которая в конечном итоге реализует CC контракт.
 
-However, unlike the normal bitcoin payments, where it is validated with only information in the transaction, a CC contract has the power to do pretty much anything. It has full access to the blockchain and even the mempool, though using mempool information is inherently more risky and needs to be done carefully or for exclusions, rather than inclusions.
+Однако, в отличие от обычных биткоин-платежей, которые проверяются только информацией в транзакции, СС контракт имеет право делать почти все что угодно. Он имеет полный доступ к блочейну и даже mempool, хотя использование информации из mempool является в своей сути более рискованным, и должно быть реализовано тщательно или для исключений, а не для включений.
 
-However, this is the CC contract basics chapter, so let us ignore mempool issues and deal with just the basics. Fundamentally there is no structure for `OP_CHECKCRYPTOCONDITION` serialized scripts, but if you are like me, you want to avoid having to read and understand a 1000 page IETF standard. What we really want to do is have a logical way to make a new contract and have it be able to be coded and debugged in an efficient way.
+Тем не менее эта глава называется "Основы" СС контрактов, поэтому давайте игнорировать проблемы с mempool и рассмотрим только основы. Фундаментально не существует структуры для сериализованных скриптов `OP_CHECKCRYPTOCONDITION`, но если вы такой же как и я - вы не хотите читать и понимать 1000 страниц стандарта IETF. То, что мы действительно хотим сделать - это логичный способ создать новый контракт и иметь возможность эффективно его кодировать и отлаживать.
 
-That means to just follow a known working template and only changing the things where the existing templates are not sufficient, ie. the core differentiator of your CC contract.
+Это означает простое следование известному рабочему шаблону и изменять только те вещи, где существующие шаблоны недостаточны, то есть основные отличительные черты вашего СС контракта.
 
-In the [~/komodo/src/cc/eval.h](https://github.com/jl777/komodo/tree/jl777/src/cc/eval.h) file all the eval codes are defined, currently:
+В файле  [~/komodo/src/cc/eval.h](https://github.com/jl777/komodo/tree/jl777/src/cc/eval.h) представлены все eval коды. На данный момент он выглядит так:
 
-```C
+```
 #define FOREACH_EVAL(EVAL)             \
         EVAL(EVAL_IMPORTPAYOUT, 0xe1)  \
         EVAL(EVAL_IMPORTCOIN,   0xe2)  \
@@ -127,18 +127,17 @@ In the [~/komodo/src/cc/eval.h](https://github.com/jl777/komodo/tree/jl777/src/c
         EVAL(EVAL_GATEWAYS, 0xf1)
 ```
 
-Ultimately, we will probably end up with all 256 eval codes used, for now there is plenty of room. I imagined that similar to my coins repo, we can end up with a much larger than 256 number of CC contracts and you select the 256 that you want active for your blockchain. That does mean any specific chain will be limited to "only" having 256 contracts. Since there seems to be so few actually useful contracts so far, this limit seems to be sufficient. I am told that the evalcode can be of any length, but the current CC contracts assumes it is one byte.
+В конечном счете, мы вероятно закончим использованием всех 256 eval кодов, сейчас есть много места. Я представил что с похожим на мои монеты репозиторием мы можем закончить с гораздо большим чем 256 числом СС контрактов и вы просто выберете 256 которые вы хотите активировать для вашего блокчейна. Это означает, что любой конкретный блокчейн будет ограничен наличием "только" 256 контрактов. Поскольку до сих пор, похоже, так мало действительно полезных контрактов, этого предела, по-видимому, достаточно. Я говорил о том, что eval-код может быть любой длины, но текущие CC контракты предполагают размер в 1 байт.
 
-The simplest CC script would be one that requires a signature from a pubkey along with a CC validation. This is the equivalent of the pay to pubkey bitcoin script and is what most of the initial CC contracts use. Only the channels one needed more than this and it will be explained in its chapter.
-We end up with CC scripts of the form (`evalcode`) + (`pubkey`) + (other stuff), dont worry about the other stuff, it is automatically handled with some handy internal functions. The important thing to note is that each CC contract of this form needs a single pubkey and eval code and from that we get the CC script. Using the standard bitcoin's "hash and make an address from it" method, this means that the same pubkey will generate a different address for each different CC contract!
+Простейшим CC скриптом будет тот, который требует подписи от публичного ключа вместе с СС валидацией. Это эквивалентно платежу на pubkey bitcoin скрипт и это то, что использует большинство СС контрактов. Только каналы требуют большего и я объясню это в данной главе.
+В итоге мы получаем СС скрипты в форме: (`evalcode`) + (`pubkey`) + (`другие вещи`), не беспокойтесь насчет других вещей, они обрабатываются автоматически при помощи некоторых удобных внутренних функций. Важно отметить, что каждый СС контракт этой формы требует единчного публичного ключа и eval кода и из этого мы получаем CC скрипт. Используя стандартный метод bitcoin "берем хэш и делаем из него адрес", это значит что тот же публичный ключ будет генерировать разные адреса для каждого разного CC контракта!
 
-This is an important point, so I will say it in a different way. In bitcoin there used to be uncompressed pubkeys which had both the right and left half combined, into a giant 64 byte pubkey. But since you can derive one from the other, compressed pubkeys became the standard, that is why you have bitcoin pubkeys of 33 bytes instead of 65 bytes. There is a 02, 03 or 04 prefix, to mean odd or even or big pubkey. This means there are two different pubkeys for each privkey, the compressed and uncompressed. And in fact you can have two different bitcoin protocol addresses that are spendable by the same privkey. If you use some paper wallet generators, you might have noticed this.
+Это важный момент, поэтому я расскажу об этом еще, но по-другому. В Bitcoin раньше использовались несжатые публичные ключи, имевшие в сумме при сложении правой и левой частей, огромный 64 байтовый публичный ключ. Но так как вы можете извлечь одно из другого, сжатые публичные ключи стали стандартом, вот почему ваши публичные ключи Bitcoin имеют размер 33 байта а не 65. Существуют префиксы 02, 03 или 04, чтобы обозначить нечетный, четный или большой публичный ключ. Это означает, что существует два разных публичных ключа для каждого приватного ключа, сжатый и несжатый. И действительно у вас могут быть два различных адреса протокола bitcoin которые могут быть потрачены одинаковым приватным ключом. Если вы используете генераторы бумажных кошельков - вы уже наверное это заметили.
 
-CC contracts are like that, where each pubkey gets a different address for each evalcode. It is the same pubkey, just different address due to the actual script having a different evalcode, it ends up with a different hash and thus a different address. Now funds send to a specific CC address is only accessible by that CC contract and must follow the rules of that contract.
-I also added another very useful feature where the convention is for each CC contract to have a special address that is known to all, including its private key. Before you panic about publishing the private key, remember that to spend a CC output, you need to properly sign it AND satisfy all the rules. By everyone having the privkey for the CC contract, everybody can do the "properly sign" part, but they still need to follow the rest of the rules.
+СС контракты устроены так, что каждый публичный ключ получает другой адрес для каждого eval кода. Это тот же публичный ключ, разные адреса просто потому что фактический скрипт имеет другой eval код, он заканчивается на другой хэш и отсюда разные адреса. Теперь средства отправляемые на конкретный СС адрес доступны только через этот СС контракт и должны следовать правилам данного контракта.
+Я так же добавил еще одну полезную функцию, в которой есть соглашение иметь специальный адрес для каждого СС контракта, известный всем, включая его приватный ключ. До того, как вы начнете паниковать по поводу публикации приватного ключа, запомните, что чтобы потратить выход СС, вы должны правильно подписать его И выполнить все правила. Все у кого есть приватный ключ для СС контракта могут сделать часть "правильной подписи", однако им все рвно нужно следовать оставшимся правилам.
 
-From a user's perspective, there is the global CC address for a CC contract and some contracts also use the user pubkey's CC address. Having a pair of new addresses for each contract can get a bit confusing at first, but eventually we will get easy to use GUI that will make it all easy to use.
-
+С точки зрения пользователя, существует глобальный СС адрес для СС контракта и некоторые контракты так же используют СС адрес публичного ключа пользователя. Иметь пару новых адресов для каждого контракта может показаься немного запутанным на первый взгляд, но в итоге мы получим простой в использовании графический интерфейс.
 
 
 ## Chapter 3 - CC vins and vouts
