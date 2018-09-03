@@ -106,7 +106,7 @@ redeemscript <- pay to pubkey
 
 В файле  [~/komodo/src/cc/eval.h](https://github.com/jl777/komodo/tree/jl777/src/cc/eval.h) представлены все eval коды. На данный момент он выглядит так:
 
-```
+```C
 #define FOREACH_EVAL(EVAL)             \
         EVAL(EVAL_IMPORTPAYOUT, 0xe1)  \
         EVAL(EVAL_IMPORTCOIN,   0xe2)  \
@@ -174,17 +174,17 @@ vin0 + vin1 + vin2 -> vout0 + vout1
 
 
 
-## Chapter 4 - CC RPC Extensions
-Currently, CC contracts need to be integrated at the source level. This limits who is able to create and add new CC contracts, which at first is good, but eventually will be a too strict limitation. The runtime bindings chapter will touch on how to break out of the source based limitation, but there is another key interface level, the RPC.
+## Глава 4 - RPC расширения СС
+В настоящее время CC контракты нужно интегрировать на уровне источников. Это ограничивает круг тех, кто может создавать и добавлять новые СС контракты, что с одной стороны хорошо, но в конечном итоге будет слишком строгим ограничением. В главе о привязке во время выполнения будет затронуто как выйти за ограничение привязки к исходникам, но существует и другой ключвой интерфейсный уровень - RPC.
 
-By convention, each CC contract adds an associated set of RPC calls to the `komodo-cli`. This not only simplifies the creation of the CC contract transactions, it further will allow dapps to be created just via RPC calls. That will require there being enough foundational CC contracts already in place. As we find new usecases that cannot be implemented via rpc, then a new CC contract is made that can handle that (and more) and the power of the RPC level increases. This is a long term process.
+По соглашению, каждый СС контракт добавляет связанный набор rpc вызовов в `komodo-cli`. Это не только упрощает создание транзакций СС контрактов, это так же позволит создавать dapps просто через rpc вызовы. Это потребует наличия достаточного количества уже готовых основных СС контрактов. Вместе с тем, как мы обнаруживаем новые юзкейсы которые не могут быть реализованы через rpc, создается новый CC контракт который может это обеспечить (и даже больше) и мощь rpc-уровня увеличивается. Это долгосрочный процесс.
 
-The typical RPC calls that are added `<CC>address`, `<CClist>`, `<CCinfo>` return the various special CC addresses, the list of CC contract instances and info about each CC contract instance. Along with an RPC that creates a CC instance and of course the calls to invoke a CC instance.
-The role of the RPC calls are to create properly signed `rawtransactions` that are ready for broadcasting. This then allows using only the RPC calls to not only invoke but to create a specific instance of a CC. The faucet contract is special in that it only has a single instance, so some of these RPC calls are skipped.
+Типичные rpc вызовы которые добавлены `<CC>address`, `<CClist>`, `<CCinfo>` возвращают различные специальные CC адреса, список экземпляров CC контрактов и информацию о каждом отдельном экзепляре СС контракта. Наряду с rpc который создает экземпляр CC и конечно вызовы для запуска экземпляра СС.
+Роль rpc вызовов заключается в создании правильно подписанных `rawtransactions` которые готовы к трансляции в блокчейн. Это позволяет ограничиваться rpc вызовами не только для запуска но и для создания отдельного экземпляра СС контракта. Контракт faucet выделяется в этом, потому что имеет только один экземпляр и некоторые из этих rpc вызовов для него пропущены.
 
-So, there is no MUSTHAVE RPC calls, just a sane convention to follow so it fits into the general pattern.
+Таким образом нет ОБЯЗАТЕЛЬНЫХ rpc вызовов, есть просто разумное соглашение чтобы следовать для соответствия общей схеме.
 
-One thing that I forgot to describe was how to create a special CC address and even though this is not really an RPC issue, it is kind of separate from the core CC functions, so I will show how to do it here:
+Одна вещь которую я забыл описать, это то, как создать специальный СС адрес, и даже если это не проблема rpc. Это отчасти зависит от основных функций CC, поэтому я покажу, как это сделать здесь:
 
 ```C
 const char *FaucetCCaddr = "R9zHrofhRbub7ER77B7NrVch3A63R39GuC";
@@ -193,23 +193,23 @@ char FaucetCChexstr[67] = { "03682b255c40d0cde8faee381a1a50bbb89980ff24539cb8518
 uint8_t FaucetCCpriv[32] = { 0xd4, 0x4f, 0xf2, 0x31, 0x71, 0x7d, 0x28, 0x02, 0x4b, 0xc7, 0xdd, 0x71, 0xa0, 0x39, 0xc4, 0xbe, 0x1a, 0xfe, 0xeb, 0xc2, 0x46, 0xda, 0x76, 0xf8, 0x07, 0x53, 0x3d, 0x96, 0xb4, 0xca, 0xa0, 0xe9 };
 ```
 
-Above are the specifics for the faucet CC, but each one has the equivalent in [CCcustom.cpp](https://github.com/jl777/komodo/tree/jl777/src/cc/CCcustom.cpp). At the bottom of the file is a big switch statement where these values are copied into an in memory data structure for each CC type. This allows all the CC codebase to access these special addresses in a standard way.
+Выше приведены параметры для faucet CC, однако каждый контракт имеет эквивалент в [CCcustom.cpp](https://github.com/jl777/komodo/tree/jl777/src/cc/CCcustom.cpp). В нижней части файла находится большой оператор switch, в котором эти значения копируются в структуру данных в памяти для каждого типа CC. Это позволяет всей кодовой базе СС иметь доступ к этим специальным адресам стандартным путем.
 
-In order to get the above values, follow these steps:
+Чтобы получить приведенные выше значения, выполните следующие действия:
 
-A. use `getnewaddress` to get a new address and put that in the `<CC>Normaladdr = "";` line
+A. используйте `getnewaddress` чтобы получить новый адрес и вставьте его в строчку `<CC>Normaladdr = ""`;
 
-B. use `validateaddress` `<newaddress from A>` to get the pubkey, which is put into the `<CC>hexstr[67] = "";` line
+B. используйте `validateaddress <новый адрес из пункта A>` для получения `pubkey`, который вставьте в строчку `<CC>hexstr[67] = ""`;
 
-C. stop the daemon [`komodod`] and start with `-pubkey=<pubkey from B>` and do a `<CC>address` RPC call. In the console you will get a printout of the hex for the privkey, assuming the if ( 0 ) in `Myprivkey()` is enabled ([CCutils.cpp](https://github.com/jl777/komodo/tree/jl777/src/cc/CCutils.cpp))
+C. остановите демон [`komodod`] и запустите с параметром `-pubkey=<pubkey из пункта B>` и сделайте `<CC>address` rpc вызов. В консоли вы получите вывод hex для `privkey`, предполагая что `if ( 0 ) в Myprivkey()` включен ([CCutils.cpp](https://github.com/jl777/komodo/tree/jl777/src/cc/CCutils.cpp))
 
-D. update the `CCaddress` and `privkey` and dont forget to change the `-pubkey=` parameter
+D. обновите `CCaddress` и `privkey` и не забудьте изменить параметр `-pubkey=`
 
-The first RPC command to add is `<CC>address` and to do that, add a line to [rpcserver.h](https://github.com/jl777/komodo/tree/jl777/src/rpcserver.h) and update the commands array in [rpcserver.cpp](https://github.com/jl777/komodo/tree/jl777/src/rpcserver.cpp)
+Первая rpc команда которую нужно добавить - `<CC>address` и чтобы это сделать, добавьте строчку в [rpcserver.h](https://github.com/jl777/komodo/tree/jl777/src/rpcserver.h) и обновите массив команд в [rpcserver.cpp](https://github.com/jl777/komodo/tree/jl777/src/rpcserver.cpp)
 
-In the [rpcwallet.cpp](https://github.com/jl777/komodo/tree/jl777/src/wallet/rpcwallet.cpp) file you will find the actual RPC functions, find one of the `<CC>address` ones, copy paste, change the eval code to your eval code and customize the function. Oh, and dont forget to add an entry into [eval.h](https://github.com/jl777/komodo/tree/jl777/src/cc/eval.h)
+В файле [rpcwallet.cpp](https://github.com/jl777/komodo/tree/jl777/src/wallet/rpcwallet.cpp) вы найдете актуальные rpc функции, найдите одну из `<CC>address`, скопируйте-вставьте, измените eval код на ваш eval код и кастомизируйте функцию. Ох, и не забудьте добавить запись в [eval.h](https://github.com/jl777/komodo/tree/jl777/src/cc/eval.h)
 
-Now you have made your own CC contract, but it wont link as you still need to implement the actual functions of it. This will be covered in the following chapters.
+Теперь вы сделали собственный CC контракт, но он не будет скомпонован, поскольку вам по-прежнему нужно имплементировать его действительные функции. Это будет рассмотрено в следующих главах.
 
 
 
