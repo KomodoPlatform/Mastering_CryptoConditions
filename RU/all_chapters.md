@@ -13,7 +13,7 @@
 - [Глава 0 - Основы протокола Bitcoin](#chapter-0---bitcoin-protocol-basics)
 - [Глава 1 - OP_CHECKCRYPTOCONDITION](#chapter-1---op_checkcryptocondition)
 - [Глава 2 - Основы СС контрактов](#chapter-2---cc-contract-basics)
-- [Глава 3 - CC vouts](#chapter-3---cc-vins-and-vouts)
+- [Глава 3 - CC vins и vouts](#chapter-3---cc-vins-and-vouts)
 - [Глава 4 - CC RPC extensions](#chapter-4---cc-rpc-extensions)
 - [Глава 5 - CC validation](#chapter-5---cc-validation)
 - [Глава 6 - faucet example](#chapter-6---faucet-example)
@@ -140,37 +140,37 @@ redeemscript <- pay to pubkey
 С точки зрения пользователя, существует глобальный СС адрес для СС контракта и некоторые контракты так же используют СС адрес публичного ключа пользователя. Иметь пару новых адресов для каждого контракта может показаься немного запутанным на первый взгляд, но в итоге мы получим простой в использовании графический интерфейс.
 
 
-## Chapter 3 - CC vins and vouts
-You might want to review the bitcoin basics and other materials to refresh about how bitcoin outputs become inputs. It is a bit complicated, but ultimately it is about one specific amount of coins that are spent, once spent it is combined with the other coins that are also spent in that transaction and then various outputs are created.
+## Глава 3 - CC vins и vouts
+Возможно вам захочется ознакомиться с основами Bitcoin и другими материалами, чтобы освежить в голове то, как Bitcoin выходы становятся входами. Это немного сложно, но в конечном счете речь идет об одном конкретном количестве монет которые были потрачены, после траты это соединяется с другими, так же потраченными в данной транзакции, монетами, а затем создаются различные выходы.
 
 ```
 vin0 + vin1 + vin2 -> vout0 + vout1
 ```
 
-That is a 3 input, 2 output transaction. The value from the three inputs are combined and then split into vout0 and vout1, each of the vouts gets a spend script that must be satisfied to be able to be spent. Which means for all three of out vins, all the requirements (as specified in the output that created them) are satisfied.
+Это транзакция с 3-мя входами и 2-мя выходами. Сумма монет из трех выходов объединяется и затем делится на vout0 и vout1, каждый из vout-ов получает скрипт траты, который должен быть удовлетворен, для того чтобы быть потраченым. Это означает что все требования (так, как указаны в выходе которых их создал) удовлетворены для всех трех vin-ов.
 
-Yes, I know this is a bit too complicated without a nice chart, so we will hope that a nice chart is added here:
+Да, я знаю это может быть немного сложно без хорошей диаграммы, поэтому мы будем надеяться, что хороший график появится здесь:
 
-`[nice chart goes here]`
+`[хороший график будет здесь]`
 
-Out of all the aspects of the CC contracts, the flexibility that different vins and vouts created was the biggest surprise. When I started writing the first of these a month ago, I had no idea the power inherent in the smart utxo contracts. I was just happy to have a way to lock funds and release them upon some specific conditions.
+Из всех аспектов CC контрактов, гибкость которую создали различные vins и vouts была самым большим сюрпризом. Когда я начинал писать первый из них месяц назад, я и понятия не имел о силе скрывающейся в смарт-контрактах на UTXO. Я был просто рад возможности заблокировать средства и освободить их в определенных условиях.
 
-After the assets/tokens CC contract, I realized that it was just a tip of the iceberg. I knew it was Turing complete, but after all these years of restricted bitcoin script, to have the full power of any arbitrary algorithm, it was eye opening. Years of writing blockchain code and having really bad consequences with every bug naturally makes you gun shy about doing aggressive things at the consensus level. And that is the way it should be, if not very careful, some really bad things can and do happen. The foundation of building on top of the existing (well tested and reliable) utxo system is what makes the CC contracts less likely for the monster bugs. That being said, lack of validation can easily allow an improperly coded CC contract to have its funds drained.
+После assets/tokens контрактов, я понял, что это всего лишь верхушка айсберга. Я знал что это Тьюринг-полное, но после всех этих лет ограниченных Bitcoin скриптов, иметь полную силу любого произвольного алгоритма - это открыло глаза. Годы написания блокчейн-кода и очень плохие последствия с каждым багом, делают вас очень пугливым когда дело касается создания агрессивных вещей на уровне консенсуса. И это так, как должно - если не быть очень осторожным, какие нибудь очень плохие вещи могут случиться и случаются. Основание, в виде построения поверх существующей (хорошо протестированной и надежной) UTXO системы, это то, что делает CC контракты менее подверженными ужасным багам. При этом недостаточная валидация может очень просто позволить изымать средства с ненадлежащим образом разработанного CC контракта.
 
-The CC contract breaks out of the standard limitations of a bitcoin transaction. Already, what I wrote explains the reason, but it was not obvious even to me at first, so likely you might have missed it too. If you are wondering what on earth I am talking about, THAT is what I am talking about!
+СС контракт выходит за рамки стандартных ограничений Bitcoin транзакции. То, что я уже написал объясняет причину этого, но сначала это было неочевидно даже для меня, поэтому возможно вы тоже упустили это. Если вы гадаете о чем это я говорю - я расскажу об ЭТОМ!
 
-To recap, we have now a new standard bitcoin output type called a CC output. Further, there can be up to 256 different types of CC outputs active on any given blockchain. We also know that to spend any output, you need to satisfy its spending script, which in our case is the signature and whatever constraints the CC validation imposes. We also have the convention of a globally shared keypair, which gives us a general CC address that can have funds sent to it, along with a user pubkey specific CC address.
-Let us go back to the 3+2 transaction example:
+Напомню, у нас теперь есть стандартный bitcoin выход нзываемый СС выходом. Кроме того, на отдельном блокчейне может существовать до 256 различных типов выходов CC контрактов. Мы также знаем что чтобы потратить любой выход, вам нужно удовлетворить его тратящий скрипт, что в нашем случае достигается подписью и любыми ограничениями накладываемыми СС-валидацией. У нас так же есть соглашение о глобально разделенной ключевой паре, которая дает нам главный CC адрес на который можно отправить средства, наряду с конкретным CC-адресом пользователя.
+Давайте вернемся к примеру с 3+2 транзакцией:
 
 ```
 vin0 + vin1 + vin2 -> vout0 + vout1
 ```
 
-Given the prior paragraph, try to imagine the possibilities the simple 3+2 transaction can be. Each `vin` could be a normal `vin`, from the global contract address, the user's CC address and the vouts can also have this range. Theoretically, there can be 257 * 257 * 257 * 257 * 257 forms of a 3+2 transaction!
+Учитывая предыдущий параграф, попробуйте представить возможности простой 3+2 транзакции. Каждый `vin` может быть обычным `vin'ом` из глобального адреса контракта, СС адрес пользователя и `vout'ы` так же могут быть в этом диапазоне. Теоретически может существовать 257 * 257 * 257 * 257 * 257 форм 3+2 транзакций!
 
-In reality, we really dont want that much degrees of freedom as it will ensure a large degree of bugs! So we need to reduce things to a more manageable level where there are at most 3 types for each, and preferably just 1 type. That will make the job of validating it much simpler and simple is better as long as we dont sacrifice the power. We dont.
+В реальности мы хонечно не хотим давать так много степеней свободы, так как это обеспечит нас большим числом багов!  Таким образом нам нужно сократить это число до более управляемого уровня, где для каждой из них должно быть не более 3 типов, а желательно всего 1 тип. Это сделает валидацию гораздо проще, а проще - значит лучше до тек пор пока мы не жертвуем мощью. А мы не жертвуем.
 
-Ultimately the CC contract is all about how it constrains its inputs, but before it can constrain them, they need to be created as outputs. More about this in the CC validation chapter.
+В конечном счете СС контракт заключается в том, как он ограничивает свои входы, но перед тем как он сможет их ограничить, они должны быть созданы в виде выходов. Больше об этом будет рассказано в главе про CC валидацию.
 
 
 
