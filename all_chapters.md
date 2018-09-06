@@ -552,7 +552,7 @@ In order to mitigate this, the disclosure of the house entropy needs to be delay
 ## Chapter 10 - Lotto Example
 
 ## Chapter 11 - Oracles Example
-Oracles CC is an example where it ended up being simpler than I first expected, but at the same time a lot more powerful. It is one of the smaller CC, but it enables creation of an arbitrary number of data markets, in a performant way.
+[Oracles CC](https://github.com/jl777/komodo/blob/jl777/src/cc/oracles.cpp) is an example where it ended up being simpler than I first expected, but at the same time a lot more powerful. It is one of the smaller CC, but it enables creation of an arbitrary number of data markets, in a performant way.
 
 In order to gain the performance, some clever usage of special addresses was needed. It was a bit tricky to generate a special address to keep track of the latest data.
 
@@ -560,7 +560,7 @@ Let's back up to the beginning. Just what is an oracle? In this context it is so
 
 The most difficult issue about oracles is that they need to be trusted to various degree to provide accurate and timely data. The danger is that if a trusted node is used to write data to the blockchain, it creates a trust point and a single point of attack. Ultimately there is nothing that can ensure only valid data is written to the blockchain, so what is done is to reinforce good behavior via pay per datapoint. However, for critical data, higher level processing is needed that combines multiple data providers into a validated signal.
 
-At the oracles CC level, it is enough that there is financial incentive to provide good data. Also it is needed to allow multiple vendors for each data that is required and to enable efficient ways to update and query the data.
+At the [oracles CC](https://github.com/jl777/komodo/blob/jl777/src/cc/oracles.cpp) level, it is enough that there is financial incentive to provide good data. Also it is needed to allow multiple vendors for each data that is required and to enable efficient ways to update and query the data.
 The following are the RPC calls:
 
 ```shell
@@ -655,9 +655,9 @@ In order to implement this, the following vin/vout contraints are used:
  vout.n-1: opreturn with oracletxid, prevbatontxid and data in proper format
 ```
 
-The `oraclesdata` transaction is the most complex as it needs to find and spend the baton `UTXO`, use the correct `datafee` and spend funds from the locked subscription funds. With the above, the oracles CC is complete and allows the creations of massively parallel data streams from multiple vendors that uses free market feedback via payments, ie. poorly performing providers wont get renewals.
+The `oraclesdata` transaction is the most complex as it needs to find and spend the baton `UTXO`, use the correct `datafee` and spend funds from the locked subscription funds. With the above, the [oracles CC](https://github.com/jl777/komodo/blob/jl777/src/cc/oracles.cpp) is complete and allows the creations of massively parallel data streams from multiple vendors that uses free market feedback via payments, ie. poorly performing providers wont get renewals.
 
-I expect that at first, the data providers will just be dapp developers deploying a working system including the required data, but its structure allows open market competition. Of course, specific dapps could restrict themselves to using only publishers from a whitelist of pubkeys. The potential usecases for oracles CC is quite varied and limited only by the imagination.
+I expect that at first, the data providers will just be dapp developers deploying a working system including the required data, but its structure allows open market competition. Of course, specific dapps could restrict themselves to using only publishers from a whitelist of pubkeys. The potential usecases for [oracles CC](https://github.com/jl777/komodo/blob/jl777/src/cc/oracles.cpp) is quite varied and limited only by the imagination.
 
 
 
