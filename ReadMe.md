@@ -19,7 +19,7 @@ All the chapters are plain text files.
 - [Chapter 7 - rewards example](Chapter%2007%20-%20rewards%20example)
 - [Chapter 8 - assets example](Chapter%2008%20-%20assets%20example)
 - [Chapter 9 - dice example](Chapter%2009%20-%20dice%20example)
-- Chapter 10 - lotto example
+- Chapter 10 - channels example
 - [Chapter 11 - oracles example](Chapter%2011%20-%20oracles%20example)
 - [Chapter 12 - limitless possibilities](Chapter%2012%20-%20limitless%20possibilities)
 - [Chapter 13 - different languages](Chapter%2013%20-%20different%20languages)
