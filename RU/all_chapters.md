@@ -14,8 +14,8 @@
 - [Глава 1 - OP_CHECKCRYPTOCONDITION](#Глава-1---op_checkcryptocondition)
 - [Глава 2 - Основы СС контрактов](#Глава-2---Основы-СС-контрактов)
 - [Глава 3 - CC vins и vouts](#Глава-3---cc-vins-и-vouts)
-- [Глава 4 - CC RPC extensions](#chapter-4---cc-rpc-extensions)
-- [Глава 5 - CC validation](#chapter-5---cc-validation)
+- [Глава 4 - RPC расширения СС](#Глава-4---cc-rpc-extensions)
+- [Глава 5 - Валидация СС](#Глава-5---Валидация-СС)
 - [Глава 6 - faucet example](#chapter-6---faucet-example)
 - Глава 7 - rewards example
 - Глава 8 - assets example
@@ -213,21 +213,20 @@ D. обновите `CCaddress` и `privkey` и не забудьте измен
 
 
 
-## Chapter 5 - CC Validation
-CC validation is what its all about, not the "hokey pokey"!
+## Глава 5 - Валидация CC
+СС валидация это то, в чем суть, не "фокус-покус"!
 
-Each CC must have its own validation function and when the blockchain is validating a transaction, it will call the CC validation code. It is totally up to the CC validation whether to validate it or not.
+Каждый СС должен иметь собственную функцию валидации, и когда блокчейн подтверждает транзакцию, он вызовет код валидации СС. Это полностью на стороне валидации СС - будет ли валидация или нет.
 
-Any set of rules that you can think of and implement can be part of the validation. Make sure that there is no ambiguity! Make sure that all transactions that should be rejected are in fact rejected.
+Любой набор правил, о котором вы можете подумать и релизовать, может стать частью валидации. Удостоверьтесь что нет никакой двусмысленности! Убедитесь, что все транзакции, которые должны быть отклонены, фактически отклоняются.
 
-Also, make sure any RPC calls that create a CC transaction dont create anything that doesnt validate.
+Кроме того, убедитесь, что, любые rpc вызовы, которые создают СС транзакцию не создают ничего, что не валидируется.
 
-Really, that is all that needs to be said about validation that is generic, as it is just a concept and gets a dedicated function to determine if a transaction is valid or not.
+На самом деле, это все что нужно сказать о валидации, которая является общей, так как это просто концепция, получающая выделенную функцию, чтобы определить, действительна ли транзакция или нет.
 
-For most of the initial CC contracts, I made a function code for various functions of the CC contract and add that along with the creation txid. That enables the validation of the transactions much easier, as the required data is right there in the opreturn.
+Для большинства первоначальных СС контрактов, я сделал работающий код для различных функций СС контрактов и добавил их вместе с созданием txid. Это делает валидацию транзакций гораздо проще, так как требуемые данные прямо здесь - в opreturn.
 
-You do need to be careful not to cause a deadlock as the CC validation code is called while already locked in the main loop of the bitcoin protocol. As long as the provided CC contracts are used as models, you should keep out of deadlock troubles.
-
+Вы должны быть осторожны чтобы не зайти в тупик (deadlock), так как код валидации СС вызывается когда он уже заблокирован в основном цикле протокола bitcoin. Пока первоначальные СС контракты используются как модели - вы должны избежать проблемы с тупиками.
 
 
 
