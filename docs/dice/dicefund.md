@@ -10,7 +10,7 @@ maxbet = Maximum amount allowed for bet
 maxodds = is the largest odds you can be with
 timeoutblocks = is how many blocks before it times out and pays out to the winner
 ```
-The dice creator node should be online to determine winning bid or losing bid. If the dice creator node is offline, after the timeout block the system will automatically declare the bets winner and payout winning funds. Set the `timeoutblocks` longer.  Long timeout block will ensure house to not loose any funds if there is any downtime of the node and comes back online within the time. You can set it low if you can ensure higher uptime of your dice creator node.
+The dice creator node should be online to determine winning bid or losing bid. If the dice creator node is offline, after the timeout block the system will automatically declare the bets winner and payout winning funds. Set the `timeoutblocks` longer.  Long timeout block will ensure house to not loose any funds if there is any downtime of the node and comes back online within the time. You can set it low if you can ensure higher uptime of your dice creator node. `maxodds` msut be between 1 and 9999.
 
 ### Step 1: Create your customized Dice contract and get the hex value
 Example Command:
