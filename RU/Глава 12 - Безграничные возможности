@@ -1,0 +1,10 @@
+Chapter 12 - Безграничные возможности
+Как было показано, CС контракты могут делать большое количество вещей и так как они Тьюринг-полные мы знаем что это правда. Однако, что более важно так это дополнительная безопасность, полученная за счет системы, построенной на UTXO. Хотя, в некотором смысле гораздо сложнее иметь дело с UTXO, как было показано в некоторых из примеров, это либо решается, либо становится невидимым на уровне rpc, либо фактически используется как часть решения.
+
+Being utxo based, automatically builds in a rate limit to how many tx per block a specific CC contract can do. The state advancing by one transaction at a time is another means that rate limits. Since more utxo can be made available to increase capacity, it actually offers a way for managing load.
+
+I believe I have made one of the first operational utxo smart contracts, CC or otherwise and hope that there will be many more developers joining forces to create more foundational CC contracts. Feel free to contact me for feedback on the type of CC contract you want to make. I have not documented all my notes and it could well be I already sort of know how to implement what your want your CC contract to do. Just only so many I can actually make time to code and debug.
+
+Our testing cycle went a lot faster than expected as the bugs found were few and far between. Considering the scope of the assets CC and the realtime response aspects of dice CC, this was quite unexpected. I can only attribute it to the fact that CC validation is just the final validation on top of all the standard bitcoin protocol validations. Not having to worry about double spends is sure a nice luxury, though dont get too complacent about chain rewrites! It is possible to wait for information to be divulged and then reorg the chain to take advantage of this knowledge in a chain which is rewound.
+
+Да, блокчейны сложные.

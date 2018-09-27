@@ -10,12 +10,12 @@
 Начать писать контракты на основе UTXO немного сложнее чем для контрактов основанных на баланах. Однако, они гораздо более безопасны, поскольку используют существующую систему UTXO Bitcoin. Это делает гораздо менее вероятным появление багов, из-за которых можно выпустить квадриллион новых монет, поскольку все операции с CC контрактом также должны подчиняться существующему UTXO протоколу Bitcoin.
 
 Данный документ будет в значительной степени основан на примерах, то есть будет использовать много отсылок к существующим CC. После осознания данного документа, вы должны быть достаточно подготовлены чтобы начать создавать новые CC контракты для интеграции в komodod, либо непосредственно dAPPS на основе RPC.
-- [Глава 0 - Основы протокола Bitcoin](#chapter-0---bitcoin-protocol-basics)
-- [Глава 1 - OP_CHECKCRYPTOCONDITION](#chapter-1---op_checkcryptocondition)
-- [Глава 2 - Основы СС контрактов](#chapter-2---cc-contract-basics)
-- [Глава 3 - CC vouts](#chapter-3---cc-vins-and-vouts)
-- [Глава 4 - CC RPC extensions](#chapter-4---cc-rpc-extensions)
-- [Глава 5 - CC validation](#chapter-5---cc-validation)
+- [Глава 0 - Основы протокола Bitcoin](#Глава-0---Основы-протокола-bitcoin)
+- [Глава 1 - OP_CHECKCRYPTOCONDITION](#Глава-1---op_checkcryptocondition)
+- [Глава 2 - Основы СС контрактов](#Глава-2---Основы-СС-контрактов)
+- [Глава 3 - CC vins и vouts](#Глава-3---cc-vins-и-vouts)
+- [Глава 4 - RPC расширения СС](#Глава-4---cc-rpc-extensions)
+- [Глава 5 - Валидация СС](#Глава-5---Валидация-СС)
 - [Глава 6 - faucet example](#chapter-6---faucet-example)
 - Глава 7 - rewards example
 - Глава 8 - assets example
@@ -106,7 +106,7 @@ redeemscript <- pay to pubkey
 
 В файле  [~/komodo/src/cc/eval.h](https://github.com/jl777/komodo/tree/jl777/src/cc/eval.h) представлены все eval коды. На данный момент он выглядит так:
 
-```
+```C
 #define FOREACH_EVAL(EVAL)             \
         EVAL(EVAL_IMPORTPAYOUT, 0xe1)  \
         EVAL(EVAL_IMPORTCOIN,   0xe2)  \
@@ -140,51 +140,51 @@ redeemscript <- pay to pubkey
 С точки зрения пользователя, существует глобальный СС адрес для СС контракта и некоторые контракты так же используют СС адрес публичного ключа пользователя. Иметь пару новых адресов для каждого контракта может показаься немного запутанным на первый взгляд, но в итоге мы получим простой в использовании графический интерфейс.
 
 
-## Chapter 3 - CC vins and vouts
-You might want to review the bitcoin basics and other materials to refresh about how bitcoin outputs become inputs. It is a bit complicated, but ultimately it is about one specific amount of coins that are spent, once spent it is combined with the other coins that are also spent in that transaction and then various outputs are created.
+## Глава 3 - CC vins и vouts
+Возможно вам захочется ознакомиться с основами Bitcoin и другими материалами, чтобы освежить в голове то, как Bitcoin выходы становятся входами. Это немного сложно, но в конечном счете речь идет об одном конкретном количестве монет которые были потрачены, после траты это соединяется с другими, так же потраченными в данной транзакции, монетами, а затем создаются различные выходы.
 
 ```
 vin0 + vin1 + vin2 -> vout0 + vout1
 ```
 
-That is a 3 input, 2 output transaction. The value from the three inputs are combined and then split into vout0 and vout1, each of the vouts gets a spend script that must be satisfied to be able to be spent. Which means for all three of out vins, all the requirements (as specified in the output that created them) are satisfied.
+Это транзакция с 3-мя входами и 2-мя выходами. Сумма монет из трех выходов объединяется и затем делится на vout0 и vout1, каждый из vout-ов получает скрипт траты, который должен быть удовлетворен, для того чтобы быть потраченым. Это означает что все требования (так, как указаны в выходе которых их создал) удовлетворены для всех трех vin-ов.
 
-Yes, I know this is a bit too complicated without a nice chart, so we will hope that a nice chart is added here:
+Да, я знаю это может быть немного сложно без хорошей диаграммы, поэтому мы будем надеяться, что хороший график появится здесь:
 
-`[nice chart goes here]`
+`[хороший график будет здесь]`
 
-Out of all the aspects of the CC contracts, the flexibility that different vins and vouts created was the biggest surprise. When I started writing the first of these a month ago, I had no idea the power inherent in the smart utxo contracts. I was just happy to have a way to lock funds and release them upon some specific conditions.
+Из всех аспектов CC контрактов, гибкость которую создали различные vins и vouts была самым большим сюрпризом. Когда я начинал писать первый из них месяц назад, я и понятия не имел о силе скрывающейся в смарт-контрактах на UTXO. Я был просто рад возможности заблокировать средства и освободить их в определенных условиях.
 
-After the assets/tokens CC contract, I realized that it was just a tip of the iceberg. I knew it was Turing complete, but after all these years of restricted bitcoin script, to have the full power of any arbitrary algorithm, it was eye opening. Years of writing blockchain code and having really bad consequences with every bug naturally makes you gun shy about doing aggressive things at the consensus level. And that is the way it should be, if not very careful, some really bad things can and do happen. The foundation of building on top of the existing (well tested and reliable) utxo system is what makes the CC contracts less likely for the monster bugs. That being said, lack of validation can easily allow an improperly coded CC contract to have its funds drained.
+После assets/tokens контрактов, я понял, что это всего лишь верхушка айсберга. Я знал что это Тьюринг-полное, но после всех этих лет ограниченных Bitcoin скриптов, иметь полную силу любого произвольного алгоритма - это открыло глаза. Годы написания блокчейн-кода и очень плохие последствия с каждым багом, делают вас очень пугливым когда дело касается создания агрессивных вещей на уровне консенсуса. И это так, как должно - если не быть очень осторожным, какие нибудь очень плохие вещи могут случиться и случаются. Основание, в виде построения поверх существующей (хорошо протестированной и надежной) UTXO системы, это то, что делает CC контракты менее подверженными ужасным багам. При этом недостаточная валидация может очень просто позволить изымать средства с ненадлежащим образом разработанного CC контракта.
 
-The CC contract breaks out of the standard limitations of a bitcoin transaction. Already, what I wrote explains the reason, but it was not obvious even to me at first, so likely you might have missed it too. If you are wondering what on earth I am talking about, THAT is what I am talking about!
+СС контракт выходит за рамки стандартных ограничений Bitcoin транзакции. То, что я уже написал объясняет причину этого, но сначала это было неочевидно даже для меня, поэтому возможно вы тоже упустили это. Если вы гадаете о чем это я говорю - я расскажу об ЭТОМ!
 
-To recap, we have now a new standard bitcoin output type called a CC output. Further, there can be up to 256 different types of CC outputs active on any given blockchain. We also know that to spend any output, you need to satisfy its spending script, which in our case is the signature and whatever constraints the CC validation imposes. We also have the convention of a globally shared keypair, which gives us a general CC address that can have funds sent to it, along with a user pubkey specific CC address.
-Let us go back to the 3+2 transaction example:
+Напомню, у нас теперь есть стандартный bitcoin выход нзываемый СС выходом. Кроме того, на отдельном блокчейне может существовать до 256 различных типов выходов CC контрактов. Мы также знаем что чтобы потратить любой выход, вам нужно удовлетворить его тратящий скрипт, что в нашем случае достигается подписью и любыми ограничениями накладываемыми СС-валидацией. У нас так же есть соглашение о глобально разделенной ключевой паре, которая дает нам главный CC адрес на который можно отправить средства, наряду с конкретным CC-адресом пользователя.
+Давайте вернемся к примеру с 3+2 транзакцией:
 
 ```
 vin0 + vin1 + vin2 -> vout0 + vout1
 ```
 
-Given the prior paragraph, try to imagine the possibilities the simple 3+2 transaction can be. Each `vin` could be a normal `vin`, from the global contract address, the user's CC address and the vouts can also have this range. Theoretically, there can be 257 * 257 * 257 * 257 * 257 forms of a 3+2 transaction!
+Учитывая предыдущий параграф, попробуйте представить возможности простой 3+2 транзакции. Каждый `vin` может быть обычным `vin'ом` из глобального адреса контракта, СС адрес пользователя и `vout'ы` так же могут быть в этом диапазоне. Теоретически может существовать 257 * 257 * 257 * 257 * 257 форм 3+2 транзакций!
 
-In reality, we really dont want that much degrees of freedom as it will ensure a large degree of bugs! So we need to reduce things to a more manageable level where there are at most 3 types for each, and preferably just 1 type. That will make the job of validating it much simpler and simple is better as long as we dont sacrifice the power. We dont.
+В реальности мы хонечно не хотим давать так много степеней свободы, так как это обеспечит нас большим числом багов!  Таким образом нам нужно сократить это число до более управляемого уровня, где для каждой из них должно быть не более 3 типов, а желательно всего 1 тип. Это сделает валидацию гораздо проще, а проще - значит лучше до тек пор пока мы не жертвуем мощью. А мы не жертвуем.
 
-Ultimately the CC contract is all about how it constrains its inputs, but before it can constrain them, they need to be created as outputs. More about this in the CC validation chapter.
+В конечном счете СС контракт заключается в том, как он ограничивает свои входы, но перед тем как он сможет их ограничить, они должны быть созданы в виде выходов. Больше об этом будет рассказано в главе про CC валидацию.
 
 
 
-## Chapter 4 - CC RPC Extensions
-Currently, CC contracts need to be integrated at the source level. This limits who is able to create and add new CC contracts, which at first is good, but eventually will be a too strict limitation. The runtime bindings chapter will touch on how to break out of the source based limitation, but there is another key interface level, the RPC.
+## Глава 4 - RPC расширения СС
+В настоящее время CC контракты нужно интегрировать на уровне источников. Это ограничивает круг тех, кто может создавать и добавлять новые СС контракты, что с одной стороны хорошо, но в конечном итоге будет слишком строгим ограничением. В главе о привязке во время выполнения будет затронуто как выйти за ограничение привязки к исходникам, но существует и другой ключвой интерфейсный уровень - RPC.
 
-By convention, each CC contract adds an associated set of RPC calls to the `komodo-cli`. This not only simplifies the creation of the CC contract transactions, it further will allow dapps to be created just via RPC calls. That will require there being enough foundational CC contracts already in place. As we find new usecases that cannot be implemented via rpc, then a new CC contract is made that can handle that (and more) and the power of the RPC level increases. This is a long term process.
+По соглашению, каждый СС контракт добавляет связанный набор rpc вызовов в `komodo-cli`. Это не только упрощает создание транзакций СС контрактов, это так же позволит создавать dapps просто через rpc вызовы. Это потребует наличия достаточного количества уже готовых основных СС контрактов. Вместе с тем, как мы обнаруживаем новые юзкейсы которые не могут быть реализованы через rpc, создается новый CC контракт который может это обеспечить (и даже больше) и мощь rpc-уровня увеличивается. Это долгосрочный процесс.
 
-The typical RPC calls that are added `<CC>address`, `<CClist>`, `<CCinfo>` return the various special CC addresses, the list of CC contract instances and info about each CC contract instance. Along with an RPC that creates a CC instance and of course the calls to invoke a CC instance.
-The role of the RPC calls are to create properly signed `rawtransactions` that are ready for broadcasting. This then allows using only the RPC calls to not only invoke but to create a specific instance of a CC. The faucet contract is special in that it only has a single instance, so some of these RPC calls are skipped.
+Типичные rpc вызовы которые добавлены `<CC>address`, `<CClist>`, `<CCinfo>` возвращают различные специальные CC адреса, список экземпляров CC контрактов и информацию о каждом отдельном экзепляре СС контракта. Наряду с rpc который создает экземпляр CC и конечно вызовы для запуска экземпляра СС.
+Роль rpc вызовов заключается в создании правильно подписанных `rawtransactions` которые готовы к трансляции в блокчейн. Это позволяет ограничиваться rpc вызовами не только для запуска но и для создания отдельного экземпляра СС контракта. Контракт faucet выделяется в этом, потому что имеет только один экземпляр и некоторые из этих rpc вызовов для него пропущены.
 
-So, there is no MUSTHAVE RPC calls, just a sane convention to follow so it fits into the general pattern.
+Таким образом нет ОБЯЗАТЕЛЬНЫХ rpc вызовов, есть просто разумное соглашение чтобы следовать для соответствия общей схеме.
 
-One thing that I forgot to describe was how to create a special CC address and even though this is not really an RPC issue, it is kind of separate from the core CC functions, so I will show how to do it here:
+Одна вещь которую я забыл описать, это то, как создать специальный СС адрес, и даже если это не проблема rpc. Это отчасти зависит от основных функций CC, поэтому я покажу, как это сделать здесь:
 
 ```C
 const char *FaucetCCaddr = "R9zHrofhRbub7ER77B7NrVch3A63R39GuC";
@@ -193,41 +193,40 @@ char FaucetCChexstr[67] = { "03682b255c40d0cde8faee381a1a50bbb89980ff24539cb8518
 uint8_t FaucetCCpriv[32] = { 0xd4, 0x4f, 0xf2, 0x31, 0x71, 0x7d, 0x28, 0x02, 0x4b, 0xc7, 0xdd, 0x71, 0xa0, 0x39, 0xc4, 0xbe, 0x1a, 0xfe, 0xeb, 0xc2, 0x46, 0xda, 0x76, 0xf8, 0x07, 0x53, 0x3d, 0x96, 0xb4, 0xca, 0xa0, 0xe9 };
 ```
 
-Above are the specifics for the faucet CC, but each one has the equivalent in [CCcustom.cpp](https://github.com/jl777/komodo/tree/jl777/src/cc/CCcustom.cpp). At the bottom of the file is a big switch statement where these values are copied into an in memory data structure for each CC type. This allows all the CC codebase to access these special addresses in a standard way.
+Выше приведены параметры для faucet CC, однако каждый контракт имеет эквивалент в [CCcustom.cpp](https://github.com/jl777/komodo/tree/jl777/src/cc/CCcustom.cpp). В нижней части файла находится большой оператор switch, в котором эти значения копируются в структуру данных в памяти для каждого типа CC. Это позволяет всей кодовой базе СС иметь доступ к этим специальным адресам стандартным путем.
 
-In order to get the above values, follow these steps:
+Чтобы получить приведенные выше значения, выполните следующие действия:
 
-A. use `getnewaddress` to get a new address and put that in the `<CC>Normaladdr = "";` line
+A. используйте `getnewaddress` чтобы получить новый адрес и вставьте его в строчку `<CC>Normaladdr = ""`;
 
-B. use `validateaddress` `<newaddress from A>` to get the pubkey, which is put into the `<CC>hexstr[67] = "";` line
+B. используйте `validateaddress <новый адрес из пункта A>` для получения `pubkey`, который вставьте в строчку `<CC>hexstr[67] = ""`;
 
-C. stop the daemon [`komodod`] and start with `-pubkey=<pubkey from B>` and do a `<CC>address` RPC call. In the console you will get a printout of the hex for the privkey, assuming the if ( 0 ) in `Myprivkey()` is enabled ([CCutils.cpp](https://github.com/jl777/komodo/tree/jl777/src/cc/CCutils.cpp))
+C. остановите демон [`komodod`] и запустите с параметром `-pubkey=<pubkey из пункта B>` и сделайте `<CC>address` rpc вызов. В консоли вы получите вывод hex для `privkey`, предполагая что `if ( 0 ) в Myprivkey()` включен ([CCutils.cpp](https://github.com/jl777/komodo/tree/jl777/src/cc/CCutils.cpp))
 
-D. update the `CCaddress` and `privkey` and dont forget to change the `-pubkey=` parameter
+D. обновите `CCaddress` и `privkey` и не забудьте изменить параметр `-pubkey=`
 
-The first RPC command to add is `<CC>address` and to do that, add a line to [rpcserver.h](https://github.com/jl777/komodo/tree/jl777/src/rpcserver.h) and update the commands array in [rpcserver.cpp](https://github.com/jl777/komodo/tree/jl777/src/rpcserver.cpp)
+Первая rpc команда которую нужно добавить - `<CC>address` и чтобы это сделать, добавьте строчку в [rpcserver.h](https://github.com/jl777/komodo/tree/jl777/src/rpcserver.h) и обновите массив команд в [rpcserver.cpp](https://github.com/jl777/komodo/tree/jl777/src/rpcserver.cpp)
 
-In the [rpcwallet.cpp](https://github.com/jl777/komodo/tree/jl777/src/wallet/rpcwallet.cpp) file you will find the actual RPC functions, find one of the `<CC>address` ones, copy paste, change the eval code to your eval code and customize the function. Oh, and dont forget to add an entry into [eval.h](https://github.com/jl777/komodo/tree/jl777/src/cc/eval.h)
+В файле [rpcwallet.cpp](https://github.com/jl777/komodo/tree/jl777/src/wallet/rpcwallet.cpp) вы найдете актуальные rpc функции, найдите одну из `<CC>address`, скопируйте-вставьте, измените eval код на ваш eval код и кастомизируйте функцию. Ох, и не забудьте добавить запись в [eval.h](https://github.com/jl777/komodo/tree/jl777/src/cc/eval.h)
 
-Now you have made your own CC contract, but it wont link as you still need to implement the actual functions of it. This will be covered in the following chapters.
+Теперь вы сделали собственный CC контракт, но он не будет скомпонован, поскольку вам по-прежнему нужно имплементировать его действительные функции. Это будет рассмотрено в следующих главах.
 
 
 
-## Chapter 5 - CC Validation
-CC validation is what its all about, not the "hokey pokey"!
+## Глава 5 - Валидация CC
+СС валидация это то, в чем суть, не "фокус-покус"!
 
-Each CC must have its own validation function and when the blockchain is validating a transaction, it will call the CC validation code. It is totally up to the CC validation whether to validate it or not.
+Каждый СС должен иметь собственную функцию валидации, и когда блокчейн подтверждает транзакцию, он вызовет код валидации СС. Это полностью на стороне валидации СС - будет ли валидация или нет.
 
-Any set of rules that you can think of and implement can be part of the validation. Make sure that there is no ambiguity! Make sure that all transactions that should be rejected are in fact rejected.
+Любой набор правил, о котором вы можете подумать и релизовать, может стать частью валидации. Удостоверьтесь что нет никакой двусмысленности! Убедитесь, что все транзакции, которые должны быть отклонены, фактически отклоняются.
 
-Also, make sure any RPC calls that create a CC transaction dont create anything that doesnt validate.
+Кроме того, убедитесь, что, любые rpc вызовы, которые создают СС транзакцию не создают ничего, что не валидируется.
 
-Really, that is all that needs to be said about validation that is generic, as it is just a concept and gets a dedicated function to determine if a transaction is valid or not.
+На самом деле, это все что нужно сказать о валидации, которая является общей, так как это просто концепция, получающая выделенную функцию, чтобы определить, действительна ли транзакция или нет.
 
-For most of the initial CC contracts, I made a function code for various functions of the CC contract and add that along with the creation txid. That enables the validation of the transactions much easier, as the required data is right there in the opreturn.
+Для большинства первоначальных СС контрактов, я сделал работающий код для различных функций СС контрактов и добавил их вместе с созданием txid. Это делает валидацию транзакций гораздо проще, так как требуемые данные прямо здесь - в opreturn.
 
-You do need to be careful not to cause a deadlock as the CC validation code is called while already locked in the main loop of the bitcoin protocol. As long as the provided CC contracts are used as models, you should keep out of deadlock troubles.
-
+Вы должны быть осторожны чтобы не зайти в тупик (deadlock), так как код валидации СС вызывается когда он уже заблокирован в основном цикле протокола bitcoin. Пока первоначальные СС контракты используются как модели - вы должны избежать проблемы с тупиками.
 
 
 
