@@ -4,6 +4,8 @@ Usage: `faucetget`
 
 Faucet returns 0.1 coins and requires about 30 seconds of CPU time.
 
+#### Make sure your address doesn't have any funds. Otherwise, you can't claim it.
+
 ### Step 1: Use `faucetget` and get the raw HEX value
 Example Command:
 ```shell
