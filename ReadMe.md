@@ -24,7 +24,7 @@ All the chapters are plain text files.
 - [Chapter 12 - limitless possibilities](Chapter%2012%20-%20limitless%20possibilities)
 - [Chapter 13 - different languages](Chapter%2013%20-%20different%20languages)
 - [Chapter 14 - runtime bindings](Chapter%2014%20-%20runtime%20bindings)
-- [Chapter 15 - RPC based dapps](Chapter%2015%20-%20RPC%20based%20dapps)
+- [Chapter 15 - RPC based dapps](Chapter%2015%20-%20rpc%20based%20dapps)
 
 
 ### Formatted documentation text draft
