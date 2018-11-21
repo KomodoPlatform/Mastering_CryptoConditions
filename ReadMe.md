@@ -1,6 +1,6 @@
 ## Mastering CryptoConditions - UTXO Based Smart Contracts
 
-This repo consists the raw text documentation on Komodo CryptoConditions Smart Contracts, written by Komodo Platform core developer jl777 (James Lee).
+This repository consists of documentation on Komodo CryptoConditions Smart Contracts, written by Komodo Platform core developer jl777 (James Lee).
 
 
 
@@ -24,22 +24,22 @@ All the chapters are plain text files.
 - [Chapter 12 - limitless possibilities](Chapter%2012%20-%20limitless%20possibilities)
 - [Chapter 13 - different languages](Chapter%2013%20-%20different%20languages)
 - [Chapter 14 - runtime bindings](Chapter%2014%20-%20runtime%20bindings)
-- [Chapter 15 - RPC based dapps](Chapter%2015%20-%20RPC%20based%20dapps)
+- [Chapter 15 - RPC based dapps](Chapter%2015%20-%20rpc%20based%20dapps)
 
 
-### Formated documentation text draft
+### Formatted documentation text draft
 
 All chapters are compiled to a nice draft in Markdown format which you can read in [all_chapters.md](all_chapters.md) file.
 
 
-### RPC Documentation of Example CryptoCondtions Contracts
+### RPC Documentation of Example CryptoConditions Contracts
 
 There is a work in progress RPC documentation for the first example/demo CryptoConditions smart contracts which you can find in [docs directory](docs/).
 
 
 ### Translations and Community Contributions
 
-We are open to accept updates to this documentation with any improvements, updates, corrections, translations, example CryptoContracts code and such.
+We are open to accept updates to this documentation with any improvements, updates, corrections, translations, example CryptoConditions based contracts code and such.
 
 Please feel free to push a pull request with your changes and our team will be happy to merge the changes after review.
 
